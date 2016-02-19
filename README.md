@@ -153,32 +153,31 @@ This will output to stdout and POST to malice results API webhook endpoint.
 ---
 #### shadow-server
 ##### AntiVirus
-| FirstSeen           | LastSeen            |
-| ------------------- | ------------------- |
-| 2010-06-15 03:09:41 | 2010-06-15 03:09:41 |
-
+ - FirstSeen: "2010-06-15 03:09:41"
+ - LastSeen: "2010-06-15 03:09:41"
+ 
 | Vendor           | Signature                  |
 | ---------------- | -------------------------- |
-| AVG7             | Downloader.Generic9.URM    |
-| TrendMicro       | TROJ_DLOADR.SMM            |
-| VBA32            | Trojan.VBO.011858          |
-| VirusBuster      | Worm.VB.FMYJ               |
-| Clam             | Trojan.Downloader-50691    |
-| Kaspersky        | Trojan.Win32.Cosmu.nyl     |
+| F-Secure         | Worm:W32/Revois.gen!A      |
 | McAfee           | Generic                    |
-| Vexira           | Trojan.DL.VB.EEDT          |
-| Ikarus           | Trojan-Downloader.Win32.VB |
-| AntiVir          | WORM/VB.NVA                |
-| Avast-Commercial | Win32:Zbot-LRA             |
-| DrWeb            | Win32.HLLW.Autoruner.6014  |
-| F-Prot6          | W32/Worm.BAOX              |
-| Panda            | W32/OverDoom.A             |
+| NOD32            | Win32/AutoRun.VB.JP        |
 | QuickHeal        | Worm.VB.at                 |
 | Sophos           | Troj/DwnLdr-HQY            |
-| F-Secure         | Worm:W32/Revois.gen!A      |
+| TrendMicro       | TROJ_DLOADR.SMM            |
+| F-Prot6          | W32/Worm.BAOX              |
+| DrWeb            | Win32.HLLW.Autoruner.6014  |
+| Ikarus           | Trojan-Downloader.Win32.VB |
+| VBA32            | Trojan.VBO.011858          |
+| Avast-Commercial | Win32:Zbot-LRA             |
+| AntiVir          | WORM/VB.NVA                |
+| Clam             | Trojan.Downloader-50691    |
 | G-Data           | Trojan.Generic.2609117     |
-| NOD32            | Win32/AutoRun.VB.JP        |
+| Kaspersky        | Trojan.Win32.Cosmu.nyl     |
 | Norman           | Suspicious_Gen2.SKLJ       |
+| Panda            | W32/OverDoom.A             |
+| Vexira           | Trojan.DL.VB.EEDT          |
+| AVG7             | Downloader.Generic9.URM    |
+| VirusBuster      | Worm.VB.FMYJ               |
 ---
 ### To Run on OSX
  - Install [Homebrew](http://brew.sh)

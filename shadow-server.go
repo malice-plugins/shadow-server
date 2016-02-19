@@ -211,14 +211,10 @@ func printMarkDownTable(ss ShadowServer) {
 	}
 	if ss.Results.SandBox.Antivirus != nil {
 		fmt.Println("##### AntiVirus")
-		table := clitable.New([]string{"FirstSeen", "LastSeen"})
-		table.AddRow(map[string]interface{}{
-			"FirstSeen": ss.Results.SandBox.FirstSeen,
-			"LastSeen":  ss.Results.SandBox.LastSeen,
-		})
-		table.Markdown = true
-		table.Print()
-		table = clitable.New([]string{"Vendor", "Signature"})
+		fmt.Printf(" - FirstSeen: %q\n", ss.Results.SandBox.FirstSeen)
+		fmt.Printf(" - LastSeen: %q\n", ss.Results.SandBox.LastSeen)
+		fmt.Println()
+		table := clitable.New([]string{"Vendor", "Signature"})
 		for key, value := range ss.Results.SandBox.Antivirus {
 			table.AddRow(map[string]interface{}{"Vendor": key, "Signature": value})
 		}
