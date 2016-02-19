@@ -57,6 +57,34 @@ This will output to stdout and POST to malice results API webhook endpoint.
 ```json
 {
   "shadow-server": {
+    "md5": "aca4aad254280d25e74c82d440b76f79",
+    "sha1": "6fe80e56ad4de610304bab1675ce84d16ab6988e",
+    "first_seen": "2010-06-15 03:09:41",
+    "last_seen": "2010-06-15 03:09:41",
+    "type": "exe",
+    "ssdeep": "12288:gOqOB0v2eZJys73dOvXDpNjNe8NuMpX4aBaa48L/93zKnP6ppgg2HFZlxVPbZX:sOA2eZJ8NI8Nah8L/4PqmTVPlX",
+    "antivirus": {
+      "AVG7": "Downloader.Generic9.URM",
+      "AntiVir": "WORM/VB.NVA",
+      "Avast-Commercial": "Win32:Zbot-LRA",
+      "Clam": "Trojan.Downloader-50691",
+      "DrWeb": "Win32.HLLW.Autoruner.6014",
+      "F-Prot6": "W32/Worm.BAOX",
+      "F-Secure": "Worm:W32/Revois.gen!A",
+      "G-Data": "Trojan.Generic.2609117",
+      "Ikarus": "Trojan-Downloader.Win32.VB",
+      "Kaspersky": "Trojan.Win32.Cosmu.nyl",
+      "McAfee": "Generic",
+      "NOD32": "Win32/AutoRun.VB.JP",
+      "Norman": "Suspicious_Gen2.SKLJ",
+      "Panda": "W32/OverDoom.A",
+      "QuickHeal": "Worm.VB.at",
+      "Sophos": "Troj/DwnLdr-HQY",
+      "TrendMicro": "TROJ_DLOADR.SMM",
+      "VBA32": "Trojan.VBO.011858",
+      "Vexira": "Trojan.DL.VB.EEDT",
+      "VirusBuster": "Worm.VB.FMYJ"
+    }
   }
 }
 ```
