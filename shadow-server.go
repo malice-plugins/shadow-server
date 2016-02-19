@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/codegangsta/cli"
+	"github.com/crackcomm/go-clitable"
 	"github.com/levigross/grequests"
 	"github.com/parnurzeal/gorequest"
 )
@@ -58,24 +59,6 @@ func assert(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func printStatus(resp gorequest.Response, body string, errs []error) {
-	fmt.Println(resp.Status)
-}
-
-func printMarkDownTable(ss ShadowServer) {
-	fmt.Println("#### shadow-server")
-	// table := clitable.New([]string{"Ratio", "Link", "API", "Scanned"})
-	// table.AddRow(map[string]interface{}{
-	// 	"Ratio": getRatio(ss.Results.Positives, ss.Results.Total),
-	// 	"Link":  fmt.Sprintf("[link](%s)", ss.Results.Permalink),
-	// 	"API":   "Public",
-	// 	// "API":     ss.ApiType,
-	// 	"Scanned": time.Now().Format("Mon 2006Jan02 15:04:05"),
-	// })
-	// table.Markdown = true
-	// table.Print()
 }
 
 func hashType(hash string) *grequests.RequestOptions {
@@ -206,6 +189,42 @@ func LookupHash(hash string) ResultsData {
 	// fmt.Println(resp.String())
 	// fmt.Printf("%#v", ssResult)
 	return ssResult
+}
+
+func printStatus(resp gorequest.Response, body string, errs []error) {
+	fmt.Println(resp.Status)
+}
+
+func printMarkDownTable(ss ShadowServer) {
+	fmt.Println("#### shadow-server")
+	if ss.Results.WhiteList != nil {
+		fmt.Println("##### WhiteList")
+		table := clitable.New([]string{"Found", "Filename", "Description", "ProductName"})
+		table.AddRow(map[string]interface{}{
+			"Found":       ss.Results.Found,
+			"Filename":    ss.Results.WhiteList["filename"],
+			"Description": ss.Results.WhiteList["description"],
+			"ProductName": ss.Results.WhiteList["product_name"],
+		})
+		table.Markdown = true
+		table.Print()
+	}
+	if ss.Results.SandBox.Antivirus != nil {
+		fmt.Println("##### AntiVirus")
+		table := clitable.New([]string{"FirstSeen", "LastSeen"})
+		table.AddRow(map[string]interface{}{
+			"FirstSeen": ss.Results.SandBox.FirstSeen,
+			"LastSeen":  ss.Results.SandBox.LastSeen,
+		})
+		table.Markdown = true
+		table.Print()
+		table = clitable.New([]string{"Vendor", "Signature"})
+		for key, value := range ss.Results.SandBox.Antivirus {
+			table.AddRow(map[string]interface{}{"Vendor": key, "Signature": value})
+		}
+		table.Markdown = true
+		table.Print()
+	}
 }
 
 var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
