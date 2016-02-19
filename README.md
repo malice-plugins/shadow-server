@@ -45,7 +45,7 @@ Options:
 
 Commands:
   lookup	Get file hash sandbox report
-  whitelist	test hash against a list of known software applications
+  whitelist	Test hash against a list of known software applications
   help		Shows a list of commands or help for one command
 
 Run 'shadow-server COMMAND --help' for more information on a command.

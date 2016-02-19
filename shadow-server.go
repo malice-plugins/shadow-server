@@ -27,6 +27,13 @@ type ShadowServer struct {
 
 // ResultsData json object
 type ResultsData struct {
+	Found     bool             `json:"found"`
+	SandBox   SandBoxResults   `json:"sandbox"`
+	WhiteList WhiteListResults `json:"whitelist"`
+}
+
+// SandBoxResults is a shadow-server SandboxApi results JSON object
+type SandBoxResults struct {
 	MD5       string            `json:"md5"`
 	SHA1      string            `json:"sha1"`
 	FirstSeen string            `json:"first_seen"`
@@ -36,16 +43,8 @@ type ResultsData struct {
 	Antivirus map[string]string `json:"antivirus"`
 }
 
-// AV is a shadow-server AV results JSON object
-type AV struct {
-	Vendor    string
-	Signature string
-}
-
-// WhiteListResults json object
-type WhiteListResults struct {
-	WhiteList map[string]map[string]string `json:"whitelist"`
-}
+// WhiteListResults is a shadow-server bin-test results JSON object
+type WhiteListResults map[string]string
 
 func getopt(name, dfault string) string {
 	value := os.Getenv(name)
@@ -110,63 +109,65 @@ func hashType(hash string) *grequests.RequestOptions {
 	}
 }
 
-func parseLookUpHashOutput(lookupout string) ResultsData {
+func parseLookupHashOutput(lookupout string, hash string) ResultsData {
 	lookup := ResultsData{}
 
 	lines := strings.Split(lookupout, "\n")
 
-	if len(lines) > 2 {
-		values := strings.Split(lines[0], ",")
-
-		if len(values) == 6 {
-			lookup.MD5 = strings.Trim(values[0], "\"")
-			lookup.SHA1 = strings.Trim(values[1], "\"")
-			lookup.FirstSeen = strings.Trim(values[2], "\"")
-			lookup.LastSeen = strings.Trim(values[3], "\"")
-			lookup.FileType = strings.Trim(values[4], "\"")
-			lookup.SSDeep = strings.Trim(values[5], "\"")
+	if len(lines) == 2 {
+		if strings.Contains(lines[0], "! No match found") {
+			lookup.Found = false
+			return lookup
 		}
-		assert(json.Unmarshal([]byte(lines[1]), &lookup.Antivirus))
+		if strings.Contains(lines[0], "! Whitelisted:") {
+			lookup.Found = true
+			lookup.WhiteList = WhiteListHash(hash)
+			return lookup
+		}
+	} else if len(lines) == 3 {
+		values := strings.Split(lines[0], ",")
+		lookup.Found = true
+		lookup.WhiteList = WhiteListHash(hash)
+		if len(values) == 6 {
+			lookup.SandBox.MD5 = strings.Trim(values[0], "\"")
+			lookup.SandBox.SHA1 = strings.Trim(values[1], "\"")
+			lookup.SandBox.FirstSeen = strings.Trim(values[2], "\"")
+			lookup.SandBox.LastSeen = strings.Trim(values[3], "\"")
+			lookup.SandBox.FileType = strings.Trim(values[4], "\"")
+			lookup.SandBox.SSDeep = strings.Trim(values[5], "\"")
+		}
+		assert(json.Unmarshal([]byte(lines[1]), &lookup.SandBox.Antivirus))
+	} else {
+		log.Fatal(fmt.Errorf("Unable to parse LookupHashOutput: %#v\n", lookupout))
 	}
 
 	return lookup
 }
 
-func parseWhiteListOutput(whitelistout string) map[string]string {
-	var whitelist map[string]string
+func parseWhiteListOutput(whitelistout string) WhiteListResults {
+	whitelist := WhiteListResults{}
 
 	lines := strings.Split(whitelistout, "\n")
-	// fmt.Println("LINES")
-	// fmt.Println("len(lines): ", len(lines))
-	// fmt.Printf("%#v\n", lines)
+
 	if len(lines) > 1 {
-		// fields := strings.Fields(lines[0])
+
 		fields := strings.SplitN(lines[0], " ", 2)
-		// fmt.Println("FIELDS")
-		// fmt.Println("len(fields): ", len(fields))
-		// fmt.Printf("%#v\n", fields)
+
 		if len(fields) == 2 {
-			// 		lookup.MD5 = strings.Trim(values[0], "\"")
-			// 		lookup.SHA1 = strings.Trim(values[1], "\"")
-			// 		lookup.FirstSeen = strings.Trim(values[2], "\"")
-			// 		lookup.LastSeen = strings.Trim(values[3], "\"")
-			// 		lookup.FileType = strings.Trim(values[4], "\"")
-			// 		lookup.SSDeep = strings.Trim(values[5], "\"")
-			// 	}
+			if fields[1] == "" {
+				return nil
+			}
 			assert(json.Unmarshal([]byte(fields[1]), &whitelist))
 		}
 	}
 	// fmt.Println("whitelist")
 	// fmt.Printf("%#v\n", whitelist)
-	ssJSON, err := json.Marshal(whitelist)
-	assert(err)
-	fmt.Println(string(ssJSON))
 	return whitelist
 }
 
 // WhiteListHash test hash against a list of known software applications
 func WhiteListHash(hash string) WhiteListResults {
-	// fmt.Println("Uploading file to shadow-server...")
+
 	resp, err := grequests.Get("http://bin-test.shadowserver.org/api", hashType(hash))
 
 	if err != nil {
@@ -177,21 +178,12 @@ func WhiteListHash(hash string) WhiteListResults {
 		log.Println("Request did not return OK")
 	}
 
-	var ssWhiteList WhiteListResults
-	// fmt.Println(resp.String())
-	// return resp.String()
-	// resp.JSON(&ssResult)
-	// fmt.Printf("%#v", ssResult)
-
-	_ = parseWhiteListOutput(resp.String())
-
-	return ssWhiteList
+	return parseWhiteListOutput(resp.String())
 }
 
-// lookupHash retreieves the shadow-server file report for the given hash
-func lookupHash(hash string) ResultsData {
+// LookupHash retreieves the shadow-server file report for the given hash
+func LookupHash(hash string) ResultsData {
 	// NOTE: https://godoc.org/github.com/levigross/grequests
-	// fmt.Println("Getting shadow-server report...")
 	ro := &grequests.RequestOptions{
 		Params: map[string]string{
 			"query": hash,
@@ -206,11 +198,8 @@ func lookupHash(hash string) ResultsData {
 	if resp.Ok != true {
 		log.Println("Request did not return OK")
 	}
-	ssResult := parseLookUpHashOutput(resp.String())
-	// var ssResult ResultsData
+	ssResult := parseLookupHashOutput(resp.String(), hash)
 	// fmt.Println(resp.String())
-	// return resp.String()
-	// resp.JSON(&ssResult)
 	// fmt.Printf("%#v", ssResult)
 	return ssResult
 }
@@ -269,7 +258,7 @@ func main() {
 			},
 			Action: func(c *cli.Context) {
 				if c.Args().Present() {
-					ssReport := lookupHash(c.Args().First())
+					ssReport := LookupHash(c.Args().First())
 					ss := ShadowServer{Results: ssReport}
 					if c.Bool("table") {
 						printMarkDownTable(ss)
