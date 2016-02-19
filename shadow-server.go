@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/codegangsta/cli"
-	"github.com/crackcomm/go-clitable"
 	"github.com/levigross/grequests"
 	"github.com/parnurzeal/gorequest"
 )
@@ -73,30 +73,53 @@ func printStatus(resp gorequest.Response, body string, errs []error) {
 
 func printMarkDownTable(ss ShadowServer) {
 	fmt.Println("#### shadow-server")
-	table := clitable.New([]string{"Ratio", "Link", "API", "Scanned"})
-	table.AddRow(map[string]interface{}{
-		"Ratio": getRatio(ss.Results.Positives, ss.Results.Total),
-		"Link":  fmt.Sprintf("[link](%s)", ss.Results.Permalink),
-		"API":   "Public",
-		// "API":     ss.ApiType,
-		"Scanned": time.Now().Format("Mon 2006Jan02 15:04:05"),
-	})
-	table.Markdown = true
-	table.Print()
+	// table := clitable.New([]string{"Ratio", "Link", "API", "Scanned"})
+	// table.AddRow(map[string]interface{}{
+	// 	"Ratio": getRatio(ss.Results.Positives, ss.Results.Total),
+	// 	"Link":  fmt.Sprintf("[link](%s)", ss.Results.Permalink),
+	// 	"API":   "Public",
+	// 	// "API":     ss.ApiType,
+	// 	"Scanned": time.Now().Format("Mon 2006Jan02 15:04:05"),
+	// })
+	// table.Markdown = true
+	// table.Print()
 }
 
-// scanFile uploads file to shadow-server
-func scanFile(path string, apikey string) string {
-	// fmt.Println("Uploading file to shadow-server...")
-	ro := &grequests.RequestOptions{
-		Params: map[string]string{
-			"resource": scanResults.Sha256,
-			"scan_id":  scanResults.ScanID,
-			"apikey":   apikey,
-			"allinfo":  "1",
-		},
+func hashType(hash string) *grequests.RequestOptions {
+	if match, _ := regexp.MatchString("([a-fA-F0-9]{32})", hash); match {
+		return &grequests.RequestOptions{
+			Params: map[string]string{
+				"md5": hash,
+			},
+		}
+	} else if match, _ := regexp.MatchString("([a-fA-F0-9]{40})", hash); match {
+		return &grequests.RequestOptions{
+			Params: map[string]string{
+				"sha1": hash,
+			},
+		}
+	} else if match, _ := regexp.MatchString("([a-fA-F0-9]{64})", hash); match {
+		return &grequests.RequestOptions{
+			Params: map[string]string{
+				"sha256": hash,
+			},
+		}
+	} else if match, _ := regexp.MatchString("([a-fA-F0-9]{128})", hash); match {
+		return &grequests.RequestOptions{
+			Params: map[string]string{
+				"sha512": hash,
+			},
+		}
+	} else {
+		return &grequests.RequestOptions{ //, fmt.Errorf("%s is not a valid hash", hash)
+		}
 	}
-	resp, err = grequests.Get("https://www.shadow-server.com/vtapi/v2/file/report", ro)
+}
+
+// WhiteListHash test hash against a list of known software applications
+func WhiteListHash(hash string) ResultsData {
+	// fmt.Println("Uploading file to shadow-server...")
+	resp, err := grequests.Get("http://bin-test.shadowserver.org/api", hashType(hash))
 
 	if err != nil {
 		log.Fatalln("Unable to make request: ", err)
@@ -106,22 +129,24 @@ func scanFile(path string, apikey string) string {
 		log.Println("Request did not return OK")
 	}
 
-	// fmt.Println(resp.String())
-	return resp.String()
+	var ssResult ResultsData
+	fmt.Println(resp.String())
+	// return resp.String()
+	resp.JSON(&ssResult)
+	// fmt.Printf("%#v", ssResult)
+	return ssResult
 }
 
 // lookupHash retreieves the shadow-server file report for the given hash
-func lookupHash(hash string, apikey string) ResultsData {
+func lookupHash(hash string) ResultsData {
 	// NOTE: https://godoc.org/github.com/levigross/grequests
 	// fmt.Println("Getting shadow-server report...")
 	ro := &grequests.RequestOptions{
 		Params: map[string]string{
-			"resource": hash,
-			"apikey":   apikey,
-			"allinfo":  "1",
+			"query": hash,
 		},
 	}
-	resp, err := grequests.Get("https://www.shadow-server.com/vtapi/v2/file/report", ro)
+	resp, err := grequests.Get("http://innocuous.shadowserver.org/api/", ro)
 
 	if err != nil {
 		log.Fatalln("Unable to make request: ", err)
@@ -130,12 +155,12 @@ func lookupHash(hash string, apikey string) ResultsData {
 	if resp.Ok != true {
 		log.Println("Request did not return OK")
 	}
-	var vtResult ResultsData
-	// fmt.Println(resp.String())
+	var ssResult ResultsData
+	fmt.Println(resp.String())
 	// return resp.String()
-	resp.JSON(&vtResult)
-	// fmt.Printf("%#v", vtResult)
-	return vtResult
+	resp.JSON(&ssResult)
+	// fmt.Printf("%#v", ssResult)
+	return ssResult
 }
 
 var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
@@ -166,7 +191,6 @@ func main() {
 	app.Version = Version + ", BuildTime: " + BuildTime
 	app.Compiled, _ = time.Parse("20060102", BuildTime)
 	app.Usage = "Malice ShadowServer Hash Lookup Plugin"
-	var apikey string
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:   "post, p",
@@ -184,30 +208,6 @@ func main() {
 			Name:      "lookup",
 			Aliases:   []string{"l"},
 			Usage:     "Get file hash sandbox report",
-			ArgsUsage: "MD5/SHA1 hash of file",
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "table, t",
-					Usage: "output as Markdown table",
-				},
-			},
-			Action: func(c *cli.Context) {
-				if c.Args().Present() {
-					path := c.Args().First()
-					// Check that file exists
-					if _, err := os.Stat(path); os.IsNotExist(err) {
-						assert(err)
-					}
-					scanFile(path, apikey)
-				} else {
-					log.Fatal(fmt.Errorf("Please supply a file to upload to shadow-server."))
-				}
-			},
-		},
-		{
-			Name:      "whitelist",
-			Aliases:   []string{"w"},
-			Usage:     "test hash against a list of known software applications",
 			ArgsUsage: "MD5/SHA1/SHA256/SHA512 hash of file",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -217,7 +217,34 @@ func main() {
 			},
 			Action: func(c *cli.Context) {
 				if c.Args().Present() {
-					ssReport := lookupHash(c.Args().First(), apikey)
+					ssReport := lookupHash(c.Args().First())
+					ss := ShadowServer{Results: ssReport}
+					if c.Bool("table") {
+						printMarkDownTable(ss)
+					} else {
+						ssJSON, err := json.Marshal(ss)
+						assert(err)
+						fmt.Println(string(ssJSON))
+					}
+				} else {
+					log.Fatal(fmt.Errorf("Please supply a MD5/SHA1/SHA256/SHA512 hash to query."))
+				}
+			},
+		},
+		{
+			Name:      "whitelist",
+			Aliases:   []string{"w"},
+			Usage:     "test hash against a list of known software applications",
+			ArgsUsage: "MD5/SHA1 hash of file",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "table, t",
+					Usage: "output as Markdown table",
+				},
+			},
+			Action: func(c *cli.Context) {
+				if c.Args().Present() {
+					ssReport := WhiteListHash(c.Args().First())
 					ss := ShadowServer{Results: ssReport}
 					if c.Bool("table") {
 						printMarkDownTable(ss)

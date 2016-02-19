@@ -9,9 +9,8 @@
 
 Malice ShadowServer Hash Lookup Plugin
 
-This repository contains a **Dockerfile** of **Malice shadow-server Plugin** for [Docker](https://www.docker.io/)'s [trusted build](https://index.docker.io/u/malice/shadow-server/) published to the public [DockerHub](https://index.docker.io/).
+This repository contains a **Dockerfile** of **malice/shadow-server** for [Docker](https://www.docker.io/)'s [trusted build](https://index.docker.io/u/malice/shadow-server/) published to the public [DockerHub](https://index.docker.io/).
 
-> *NOTE:* Currently only supports Public API  
 > **WARNING:** Work in progress.  Not ready yet.
 
 ### Dependencies
@@ -26,29 +25,27 @@ This repository contains a **Dockerfile** of **Malice shadow-server Plugin** for
 
 ### Usage
 
-    docker run --rm malice/shadow-server --api APIKEY lookup HASH
+    docker run --rm malice/shadow-server lookup HASH
 
 ```bash
 Usage: shadow-server [OPTIONS] COMMAND [arg...]
 
-Malice shadow-server Plugin
+Malice ShadowServer Hash Lookup Plugin
 
-Version: v0.1.0, BuildTime: 20160214
+Version: v0.1.0, BuildTime: 20160219
 
 Author:
   blacktop - <https://github.com/blacktop>
 
 Options:
-  --table, -t	output as Markdown table
   --post, -p	POST results to Malice webhook [$MALICE_ENDPOINT]
   --proxy, -x	proxy settings for Malice webhook endpoint [$MALICE_PROXY]
-  --api 	shadow-server API key [$MALICE_VT_API]
   --help, -h	show help
   --version, -v	print the version
 
 Commands:
-  scan		Upload binary to shadow-server for scanning
-  lookup	Get file hash scan report
+  lookup	Get file hash sandbox report
+  whitelist	test hash against a list of known software applications
   help		Shows a list of commands or help for one command
 
 Run 'shadow-server COMMAND --help' for more information on a command.
