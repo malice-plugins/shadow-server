@@ -136,7 +136,11 @@ func parseLookupHashOutput(lookupout string, hash string) ResultsData {
 			lookup.SandBox.FileType = strings.Trim(values[4], "\"")
 			lookup.SandBox.SSDeep = strings.Trim(values[5], "\"")
 		}
-		assert(json.Unmarshal([]byte(lines[1]), &lookup.SandBox.Antivirus))
+		if len(lines[1]) == 2 {
+			lookup.SandBox.Antivirus = nil
+		} else {
+			assert(json.Unmarshal([]byte(lines[1]), &lookup.SandBox.Antivirus))
+		}
 	} else {
 		log.Fatal(fmt.Errorf("Unable to parse LookupHashOutput: %#v\n", lookupout))
 	}
@@ -243,62 +247,26 @@ func main() {
 			Usage:  "proxy settings for Malice webhook endpoint",
 			EnvVar: "MALICE_PROXY",
 		},
+		cli.BoolFlag{
+			Name:  "table, t",
+			Usage: "output as Markdown table",
+		},
 	}
-	app.Commands = []cli.Command{
-		{
-			Name:      "lookup",
-			Aliases:   []string{"l"},
-			Usage:     "Get file hash sandbox report",
-			ArgsUsage: "MD5/SHA1/SHA256/SHA512 hash of file",
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "table, t",
-					Usage: "output as Markdown table",
-				},
-			},
-			Action: func(c *cli.Context) {
-				if c.Args().Present() {
-					ssReport := LookupHash(c.Args().First())
-					ss := ShadowServer{Results: ssReport}
-					if c.Bool("table") {
-						printMarkDownTable(ss)
-					} else {
-						ssJSON, err := json.Marshal(ss)
-						assert(err)
-						fmt.Println(string(ssJSON))
-					}
-				} else {
-					log.Fatal(fmt.Errorf("Please supply a MD5/SHA1/SHA256/SHA512 hash to query."))
-				}
-			},
-		},
-		{
-			Name:      "whitelist",
-			Aliases:   []string{"w"},
-			Usage:     "Test hash against a list of known software applications",
-			ArgsUsage: "MD5/SHA1 hash of file",
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "table, t",
-					Usage: "output as Markdown table",
-				},
-			},
-			Action: func(c *cli.Context) {
-				if c.Args().Present() {
-					ssReport := WhiteListHash(c.Args().First())
-					// ss := ShadowServer{Results: ssReport}
-					if c.Bool("table") {
-						// printMarkDownTable(ss)
-					} else {
-						ssJSON, err := json.Marshal(ssReport)
-						assert(err)
-						fmt.Println(string(ssJSON))
-					}
-				} else {
-					log.Fatal(fmt.Errorf("Please supply a MD5/SHA1 hash to query."))
-				}
-			},
-		},
+	app.ArgsUsage = "MD5/SHA1 hash of file"
+	app.Action = func(c *cli.Context) {
+		if c.Args().Present() {
+			ssReport := LookupHash(c.Args().First())
+			ss := ShadowServer{Results: ssReport}
+			if c.Bool("table") {
+				printMarkDownTable(ss)
+			} else {
+				ssJSON, err := json.Marshal(ss)
+				assert(err)
+				fmt.Println(string(ssJSON))
+			}
+		} else {
+			log.Fatal(fmt.Errorf("Please supply a MD5/SHA1 hash to query."))
+		}
 	}
 
 	err := app.Run(os.Args)
