@@ -11,8 +11,6 @@ Malice ShadowServer Hash Lookup Plugin
 
 This repository contains a **Dockerfile** of **malice/shadow-server** for [Docker](https://www.docker.io/)'s [trusted build](https://index.docker.io/u/malice/shadow-server/) published to the public [DockerHub](https://index.docker.io/).
 
-> **WARNING:** Work in progress.  Not ready yet.
-
 ### Dependencies
 
 * [gliderlabs/alpine:3.3](https://index.docker.io/_/gliderlabs/alpine/)
@@ -153,31 +151,31 @@ This will output to stdout and POST to malice results API webhook endpoint.
 ---
 #### shadow-server
 ##### AntiVirus
- - FirstSeen: "2010-06-15 03:09:41"
- - LastSeen: "2010-06-15 03:09:41"
- 
+ - FirstSeen: 6/15/2010 3:09AM
+ - LastSeen: 6/15/2010 3:09AM
+
 | Vendor           | Signature                  |
 | ---------------- | -------------------------- |
-| F-Secure         | Worm:W32/Revois.gen!A      |
-| McAfee           | Generic                    |
-| NOD32            | Win32/AutoRun.VB.JP        |
-| QuickHeal        | Worm.VB.at                 |
-| Sophos           | Troj/DwnLdr-HQY            |
-| TrendMicro       | TROJ_DLOADR.SMM            |
 | F-Prot6          | W32/Worm.BAOX              |
-| DrWeb            | Win32.HLLW.Autoruner.6014  |
-| Ikarus           | Trojan-Downloader.Win32.VB |
-| VBA32            | Trojan.VBO.011858          |
-| Avast-Commercial | Win32:Zbot-LRA             |
-| AntiVir          | WORM/VB.NVA                |
-| Clam             | Trojan.Downloader-50691    |
 | G-Data           | Trojan.Generic.2609117     |
-| Kaspersky        | Trojan.Win32.Cosmu.nyl     |
+| NOD32            | Win32/AutoRun.VB.JP        |
+| Avast-Commercial | Win32:Zbot-LRA             |
+| DrWeb            | Win32.HLLW.Autoruner.6014  |
 | Norman           | Suspicious_Gen2.SKLJ       |
 | Panda            | W32/OverDoom.A             |
 | Vexira           | Trojan.DL.VB.EEDT          |
-| AVG7             | Downloader.Generic9.URM    |
 | VirusBuster      | Worm.VB.FMYJ               |
+| AntiVir          | WORM/VB.NVA                |
+| Clam             | Trojan.Downloader-50691    |
+| Ikarus           | Trojan-Downloader.Win32.VB |
+| Kaspersky        | Trojan.Win32.Cosmu.nyl     |
+| QuickHeal        | Worm.VB.at                 |
+| VBA32            | Trojan.VBO.011858          |
+| AVG7             | Downloader.Generic9.URM    |
+| McAfee           | Generic                    |
+| Sophos           | Troj/DwnLdr-HQY            |
+| TrendMicro       | TROJ_DLOADR.SMM            |
+| F-Secure         | Worm:W32/Revois.gen!A      |
 ---
 ### To Run on OSX
  - Install [Homebrew](http://brew.sh)
