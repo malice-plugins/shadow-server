@@ -37,8 +37,8 @@ type ResultsData struct {
 type SandBoxResults struct {
 	MD5       string            `json:"md5"`
 	SHA1      string            `json:"sha1"`
-	FirstSeen string            `json:"first_seen"`
-	LastSeen  string            `json:"last_seen"`
+	FirstSeen time.Time         `json:"first_seen"`
+	LastSeen  time.Time         `json:"last_seen"`
 	FileType  string            `json:"type"`
 	SSDeep    string            `json:"ssdeep"`
 	Antivirus map[string]string `json:"antivirus"`
@@ -114,8 +114,12 @@ func parseLookupHashOutput(lookupout string, hash string) ResultsData {
 		if len(values) == 6 {
 			lookup.SandBox.MD5 = strings.Trim(values[0], "\"")
 			lookup.SandBox.SHA1 = strings.Trim(values[1], "\"")
-			lookup.SandBox.FirstSeen = strings.Trim(values[2], "\"")
-			lookup.SandBox.LastSeen = strings.Trim(values[3], "\"")
+			// "2009-07-24 02:09:53"
+			const longForm = "2006-01-02 15:04:05"
+			timeFirstSeen, _ := time.Parse(longForm, strings.Trim(values[2], "\""))
+			lookup.SandBox.FirstSeen = timeFirstSeen
+			timeLastSeen, _ := time.Parse(longForm, strings.Trim(values[3], "\""))
+			lookup.SandBox.LastSeen = timeLastSeen
 			lookup.SandBox.FileType = strings.Trim(values[4], "\"")
 			lookup.SandBox.SSDeep = strings.Trim(values[5], "\"")
 		}
@@ -211,8 +215,8 @@ func printMarkDownTable(ss ShadowServer) {
 	}
 	if ss.Results.SandBox.Antivirus != nil {
 		fmt.Println("##### AntiVirus")
-		fmt.Printf(" - FirstSeen: %q\n", ss.Results.SandBox.FirstSeen)
-		fmt.Printf(" - LastSeen: %q\n", ss.Results.SandBox.LastSeen)
+		fmt.Printf(" - FirstSeen: %s\n", ss.Results.SandBox.FirstSeen.Format("1/02/2006 3:04PM"))
+		fmt.Printf(" - LastSeen: %s\n", ss.Results.SandBox.LastSeen.Format("1/02/2006 3:04PM"))
 		fmt.Println()
 		table := clitable.New([]string{"Vendor", "Signature"})
 		for key, value := range ss.Results.SandBox.Antivirus {
