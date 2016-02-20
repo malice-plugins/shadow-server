@@ -139,7 +139,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
   }
 }
 ```
-### Sample Output **whitelist** STDOUT (Markdown Table):
+### Sample Output **whitelist** (Markdown Table):
 ---
 #### shadow-server
 ##### WhiteList
@@ -147,7 +147,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 | ----- | ----------- | ----------- | ---------------------------------- |
 | true  | notepad.exe | Notepad     | Microsoft Windows Operating System |
 ---
-### Sample Output **sandbox** STDOUT (Markdown Table):
+### Sample Output **sandbox** (Markdown Table):
 ---
 #### shadow-server
 ##### AntiVirus
