@@ -212,8 +212,7 @@ func printMarkDownTable(ss ShadowServer) {
 		})
 		table.Markdown = true
 		table.Print()
-	}
-	if ss.Results.SandBox.Antivirus != nil {
+	} else if ss.Results.SandBox.Antivirus != nil {
 		fmt.Println("##### AntiVirus")
 		fmt.Printf(" - FirstSeen: %s\n", ss.Results.SandBox.FirstSeen.Format("1/02/2006 3:04PM"))
 		fmt.Printf(" - LastSeen: %s\n", ss.Results.SandBox.LastSeen.Format("1/02/2006 3:04PM"))
@@ -224,6 +223,8 @@ func printMarkDownTable(ss ShadowServer) {
 		}
 		table.Markdown = true
 		table.Print()
+	} else {
+		fmt.Println(" - Not found")
 	}
 }
 
