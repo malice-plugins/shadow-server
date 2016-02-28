@@ -200,7 +200,7 @@ func printStatus(resp gorequest.Response, body string, errs []error) {
 }
 
 func printMarkDownTable(ss ShadowServer) {
-	fmt.Println("#### shadow-server")
+	fmt.Println("#### ShadowServer")
 	if ss.Results.WhiteList != nil {
 		fmt.Println("##### WhiteList")
 		table := clitable.New([]string{"Found", "Filename", "Description", "ProductName"})
