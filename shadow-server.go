@@ -9,10 +9,10 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/codegangsta/cli"
 	"github.com/crackcomm/go-clitable"
 	"github.com/levigross/grequests"
 	"github.com/parnurzeal/gorequest"
+	"github.com/urfave/cli"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
 
@@ -342,11 +342,12 @@ func main() {
 			if c.Bool("verbose") {
 				log.SetLevel(log.DebugLevel)
 			}
-			ssReport := LookupHash(c.Args().First())
+			hash := c.Args().First()
+			ssReport := LookupHash(hash)
 			ss := ShadowServer{Results: ssReport}
 
 			// upsert into Database
-			writeToDatabase(pluginResults{ID: "FIX_THIS", Data: ss.Results})
+			writeToDatabase(pluginResults{ID: getopt("MALICE_SCANID", hash), Data: ss.Results})
 
 			if c.Bool("table") {
 				printMarkDownTable(ss)
