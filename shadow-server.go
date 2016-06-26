@@ -337,7 +337,7 @@ func main() {
 		},
 	}
 	app.ArgsUsage = "MD5/SHA1 hash of file"
-	app.Action = func(c *cli.Context) {
+	app.Action = func(c *cli.Context) error {
 		if c.Args().Present() {
 			if c.Bool("verbose") {
 				log.SetLevel(log.DebugLevel)
@@ -359,6 +359,7 @@ func main() {
 		} else {
 			log.Fatal(fmt.Errorf("Please supply a MD5/SHA1 hash to query."))
 		}
+		return nil
 	}
 
 	err := app.Run(os.Args)
