@@ -39,20 +39,20 @@ type ShadowServer struct {
 
 // ResultsData json object
 type ResultsData struct {
-	Found     bool             `json:"found"`
-	SandBox   SandBoxResults   `json:"sandbox"`
-	WhiteList WhiteListResults `json:"whitelist"`
+	Found     bool             `json:"found" gorethink:"found"`
+	SandBox   SandBoxResults   `json:"sandbox" gorethink:"sandbox"`
+	WhiteList WhiteListResults `json:"whitelist" gorethink:"whitelist"`
 }
 
 // SandBoxResults is a shadow-server SandboxApi results JSON object
 type SandBoxResults struct {
-	MD5       string            `json:"md5"`
-	SHA1      string            `json:"sha1"`
-	FirstSeen time.Time         `json:"first_seen"`
-	LastSeen  time.Time         `json:"last_seen"`
-	FileType  string            `json:"type"`
-	SSDeep    string            `json:"ssdeep"`
-	Antivirus map[string]string `json:"antivirus"`
+	MD5       string            `json:"md5" gorethink:"md5"`
+	SHA1      string            `json:"sha1" gorethink:"sha1"`
+	FirstSeen time.Time         `json:"first_seen" gorethink:"first_seen"`
+	LastSeen  time.Time         `json:"last_seen" gorethink:"last_seen"`
+	FileType  string            `json:"type" gorethink:"type"`
+	SSDeep    string            `json:"ssdeep" gorethink:"ssdeep"`
+	Antivirus map[string]string `json:"antivirus" gorethink:"antivirus"`
 }
 
 // WhiteListResults is a shadow-server bin-test results JSON object
@@ -347,7 +347,10 @@ func main() {
 			ss := ShadowServer{Results: ssReport}
 
 			// upsert into Database
-			writeToDatabase(pluginResults{ID: getopt("MALICE_SCANID", hash), Data: ss.Results})
+			writeToDatabase(pluginResults{
+				ID:   getopt("MALICE_SCANID", hash),
+				Data: ss.Results,
+			})
 
 			if c.Bool("table") {
 				printMarkDownTable(ss)
