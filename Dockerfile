@@ -1,8 +1,9 @@
-FROM gliderlabs/alpine:3.3
+FROM gliderlabs/alpine
 
 MAINTAINER blacktop, https://github.com/blacktop
 
 COPY . /go/src/github.com/maliceio/malice-shadow-server
+RUN apk-install ca-certificates
 RUN apk-install -t build-deps go git mercurial \
   && set -x \
   && echo "Building info Go binary..." \

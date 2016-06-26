@@ -1,11 +1,9 @@
 ![SS logo](https://raw.githubusercontent.com/maliceio/malice-shadow-server/master/logo.png)
-# malice-shadow-server
 
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
-[![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)][hub]
-[![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)][hub]
-[![Image Size](https://img.shields.io/imagelayers/image-size/malice/shadow-server/latest.svg)](https://imagelayers.io/?images=malice/shadow-server:latest)
-[![Image Layers](https://img.shields.io/imagelayers/layers/malice/shadow-server/latest.svg)](https://imagelayers.io/?images=malice/shadow-server:latest)
+malice-shadow-server
+====================
+
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/)
 
 Malice ShadowServer Hash Lookup Plugin
 
@@ -13,17 +11,18 @@ This repository contains a **Dockerfile** of **malice/shadow-server** for [Docke
 
 ### Dependencies
 
-* [gliderlabs/alpine:3.3](https://index.docker.io/_/gliderlabs/alpine/)
-
+-	[gliderlabs/alpine:3.3](https://index.docker.io/_/gliderlabs/alpine/)
 
 ### Installation
 
-1. Install [Docker](https://www.docker.io/).
-2. Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
+1.	Install [Docker](https://www.docker.io/).
+2.	Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
 
 ### Usage
 
-    docker run --rm malice/shadow-server MD5/SHA1
+```
+docker run --rm malice/shadow-server MD5/SHA1
+```
 
 ```bash
 Usage: shadow-server [OPTIONS] COMMAND [arg...]
@@ -36,11 +35,13 @@ Author:
   blacktop - <https://github.com/blacktop>
 
 Options:
-  --post, -p	POST results to Malice webhook [$MALICE_ENDPOINT]
-  --proxy, -x	proxy settings for Malice webhook endpoint [$MALICE_PROXY]
-  --table, -t	output as Markdown table
-  --help, -h	show help
-  --version, -v	print the version
+  --verbose, -V      verbose output
+  --rethinkdb value  rethinkdb address for Malice to store results [$MALICE_RETHINKDB]
+  --post, -p         POST results to Malice webhook [$MALICE_ENDPOINT]
+  --proxy, -x        proxy settings for Malice webhook endpoint [$MALICE_PROXY]
+  --table, -t        output as Markdown table
+  --help, -h         show help
+  --version, -v      print the version
 
 Commands:
   help	Shows a list of commands or help for one command
@@ -51,6 +52,7 @@ Run 'shadow-server COMMAND --help' for more information on a command.
 This will output to stdout and POST to malice results API webhook endpoint.
 
 ### Sample Output **sandbox** JSON:
+
 ```json
 {
   "shadow-server": {
@@ -89,7 +91,9 @@ This will output to stdout and POST to malice results API webhook endpoint.
   }
 }
 ```
+
 ### Sample Output **whitelist** JSON:
+
 ```json
 {
   "shadow-server": {
@@ -139,23 +143,34 @@ This will output to stdout and POST to malice results API webhook endpoint.
   }
 }
 ```
+
 ### Sample Output **whitelist** (Markdown Table):
+
 ---
+
 #### shadow-server
+
 ##### WhiteList
+
 | Found | Filename    | Description | ProductName                        |
-| ----- | ----------- | ----------- | ---------------------------------- |
+|-------|-------------|-------------|------------------------------------|
 | true  | notepad.exe | Notepad     | Microsoft Windows Operating System |
+
 ---
+
 ### Sample Output **sandbox** (Markdown Table):
+
 ---
+
 #### shadow-server
+
 ##### AntiVirus
- - FirstSeen: 6/15/2010 3:09AM
- - LastSeen: 6/15/2010 3:09AM
+
+-	FirstSeen: 6/15/2010 3:09AM
+-	LastSeen: 6/15/2010 3:09AM
 
 | Vendor           | Signature                  |
-| ---------------- | -------------------------- |
+|------------------|----------------------------|
 | F-Prot6          | W32/Worm.BAOX              |
 | G-Data           | Trojan.Generic.2609117     |
 | NOD32            | Win32/AutoRun.VB.JP        |
@@ -176,9 +191,20 @@ This will output to stdout and POST to malice results API webhook endpoint.
 | Sophos           | Troj/DwnLdr-HQY            |
 | TrendMicro       | TROJ_DLOADR.SMM            |
 | F-Secure         | Worm:W32/Revois.gen!A      |
+
 ---
+
+### To write results to [RethinkDB](https://rethinkdb.com)
+
+```bash
+$ docker volume create --name malice
+$ docker run -d -p 28015:28015 -p 8080:8080 -v malice:/data --name rethink rethinkdb
+$ docker run --rm -v /path/to/malware:/malware:ro --link rethink:rethink malice/shadow-server -t MD5/SHA1
+```
+
 ### To Run on OSX
- - Install [Homebrew](http://brew.sh)
+
+-	Install [Homebrew](http://brew.sh)
 
 ```bash
 $ brew install caskroom/cask/brew-cask
@@ -198,6 +224,5 @@ Find a bug? Want more features? Find something missing in the documentation? Let
 ### Credits
 
 ### License
-MIT Copyright (c) 2016 **blacktop**
 
-[hub]: https://hub.docker.com/r/malice/shadow-server/
+MIT Copyright (c) 2016 **blacktop**

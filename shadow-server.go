@@ -3,16 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"regexp"
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/crackcomm/go-clitable"
 	"github.com/levigross/grequests"
 	"github.com/parnurzeal/gorequest"
+	r "gopkg.in/dancannon/gorethink.v2"
 )
 
 // Version stores the plugin's version
@@ -20,6 +21,16 @@ var Version string
 
 // BuildTime stores the plugin's build time
 var BuildTime string
+
+const (
+	name     = "shadow-server"
+	category = "intel"
+)
+
+type pluginResults struct {
+	ID   string      `json:"id" gorethink:"id,omitempty"`
+	Data ResultsData `json:"shadow-server" gorethink:"shadow-server"`
+}
 
 // ShadowServer json object
 type ShadowServer struct {
@@ -228,6 +239,47 @@ func printMarkDownTable(ss ShadowServer) {
 	}
 }
 
+// writeToDatabase upserts plugin results into Database
+func writeToDatabase(results pluginResults) {
+
+	address := fmt.Sprintf("%s:28015", getopt("MALICE_RETHINKDB", "rethink"))
+
+	// connect to RethinkDB
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  address,
+		Timeout:  5 * time.Second,
+		Database: "malice",
+	})
+	defer session.Close()
+
+	if err == nil {
+		res, err := r.Table("samples").Get(results.ID).Run(session)
+		assert(err)
+		defer res.Close()
+
+		if res.IsNil() {
+			// upsert into RethinkDB
+			resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
+			assert(err)
+			log.Debug(resp)
+		} else {
+			resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
+				"plugins": map[string]interface{}{
+					category: map[string]interface{}{
+						name: results.Data,
+					},
+				},
+			}).RunWrite(session)
+			assert(err)
+
+			log.Debug(resp)
+		}
+
+	} else {
+		log.Debug(err)
+	}
+}
+
 var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
 
 {{.Usage}}
@@ -256,7 +308,19 @@ func main() {
 	app.Version = Version + ", BuildTime: " + BuildTime
 	app.Compiled, _ = time.Parse("20060102", BuildTime)
 	app.Usage = "Malice ShadowServer Hash Lookup Plugin"
+	var rethinkdb string
 	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "verbose, V",
+			Usage: "verbose output",
+		},
+		cli.StringFlag{
+			Name:        "rethinkdb",
+			Value:       "",
+			Usage:       "rethinkdb address for Malice to store results",
+			EnvVar:      "MALICE_RETHINKDB",
+			Destination: &rethinkdb,
+		},
 		cli.BoolFlag{
 			Name:   "post, p",
 			Usage:  "POST results to Malice webhook",
@@ -275,8 +339,15 @@ func main() {
 	app.ArgsUsage = "MD5/SHA1 hash of file"
 	app.Action = func(c *cli.Context) {
 		if c.Args().Present() {
+			if c.Bool("verbose") {
+				log.SetLevel(log.DebugLevel)
+			}
 			ssReport := LookupHash(c.Args().First())
 			ss := ShadowServer{Results: ssReport}
+
+			// upsert into Database
+			writeToDatabase(pluginResults{ID: "FIX_THIS", Data: ss.Results})
+
 			if c.Bool("table") {
 				printMarkDownTable(ss)
 			} else {
