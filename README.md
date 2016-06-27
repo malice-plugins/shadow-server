@@ -7,7 +7,7 @@ malice-shadow-server
 
 Malice ShadowServer Hash Lookup Plugin
 
-This repository contains a **Dockerfile** of **malice/shadow-server** for [Docker](https://www.docker.io/)'s [trusted build](https://index.docker.io/u/malice/shadow-server/) published to the public [DockerHub](https://index.docker.io/).
+This repository contains a **Dockerfile** of the [ShadowServer](https://www.shadowserver.org/wiki/) malice plugin **malice/shadow-server**.
 
 ### Dependencies
 
