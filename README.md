@@ -11,7 +11,7 @@ This repository contains a **Dockerfile** of **malice/shadow-server** for [Docke
 
 ### Dependencies
 
--	[gliderlabs/alpine:3.3](https://index.docker.io/_/gliderlabs/alpine/)
+-	[gliderlabs/alpine](https://index.docker.io/_/gliderlabs/alpine/)
 
 ### Installation
 
