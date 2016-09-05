@@ -11,6 +11,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/crackcomm/go-clitable"
 	"github.com/levigross/grequests"
+	"github.com/maliceio/go-plugin-utils/utils"
 	"github.com/parnurzeal/gorequest"
 	"github.com/urfave/cli"
 	r "gopkg.in/dancannon/gorethink.v2"
@@ -58,20 +59,6 @@ type SandBoxResults struct {
 // WhiteListResults is a shadow-server bin-test results JSON object
 type WhiteListResults map[string]string
 
-func getopt(name, dfault string) string {
-	value := os.Getenv(name)
-	if value == "" {
-		value = dfault
-	}
-	return value
-}
-
-func assert(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func hashType(hash string) *grequests.RequestOptions {
 	if match, _ := regexp.MatchString("([a-fA-F0-9]{32})", hash); match {
 		return &grequests.RequestOptions{
@@ -108,7 +95,7 @@ func parseLookupHashOutput(lookupout string, hash string) ResultsData {
 
 	lines := strings.Split(lookupout, "\n")
 
-	if len(lines) == 2 {
+	if len(lines) == 1 {
 		if strings.Contains(lines[0], "! No match found") {
 			lookup.Found = false
 			return lookup
@@ -137,7 +124,7 @@ func parseLookupHashOutput(lookupout string, hash string) ResultsData {
 		if len(lines[1]) == 2 {
 			lookup.SandBox.Antivirus = nil
 		} else {
-			assert(json.Unmarshal([]byte(lines[1]), &lookup.SandBox.Antivirus))
+			utils.Assert(json.Unmarshal([]byte(lines[1]), &lookup.SandBox.Antivirus))
 		}
 	} else {
 		log.Fatal(fmt.Errorf("Unable to parse LookupHashOutput: %#v\n", lookupout))
@@ -159,7 +146,7 @@ func parseWhiteListOutput(whitelistout string) WhiteListResults {
 			if fields[1] == "" {
 				return nil
 			}
-			assert(json.Unmarshal([]byte(fields[1]), &whitelist))
+			utils.Assert(json.Unmarshal([]byte(fields[1]), &whitelist))
 		}
 	}
 	// fmt.Println("whitelist")
@@ -241,42 +228,38 @@ func printMarkDownTable(ss ShadowServer) {
 
 // writeToDatabase upserts plugin results into Database
 func writeToDatabase(results pluginResults) {
-
-	address := fmt.Sprintf("%s:28015", getopt("MALICE_RETHINKDB", "rethink"))
-
 	// connect to RethinkDB
 	session, err := r.Connect(r.ConnectOpts{
-		Address:  address,
+		Address:  fmt.Sprintf("%s:28015", utils.Getopt("MALICE_RETHINKDB", "rethink")),
 		Timeout:  5 * time.Second,
 		Database: "malice",
 	})
+	if err != nil {
+		log.Debug(err)
+		return
+	}
 	defer session.Close()
 
-	if err == nil {
-		res, err := r.Table("samples").Get(results.ID).Run(session)
-		assert(err)
-		defer res.Close()
+	res, err := r.Table("samples").Get(results.ID).Run(session)
+	utils.Assert(err)
+	defer res.Close()
 
-		if res.IsNil() {
-			// upsert into RethinkDB
-			resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
-			assert(err)
-			log.Debug(resp)
-		} else {
-			resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
-				"plugins": map[string]interface{}{
-					category: map[string]interface{}{
-						name: results.Data,
-					},
-				},
-			}).RunWrite(session)
-			assert(err)
-
-			log.Debug(resp)
-		}
-
+	if res.IsNil() {
+		// upsert into RethinkDB
+		resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
+		utils.Assert(err)
+		log.Debug(resp)
 	} else {
-		log.Debug(err)
+		resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
+			"plugins": map[string]interface{}{
+				category: map[string]interface{}{
+					name: results.Data,
+				},
+			},
+		}).RunWrite(session)
+		utils.Assert(err)
+
+		log.Debug(resp)
 	}
 }
 
@@ -348,7 +331,7 @@ func main() {
 
 			// upsert into Database
 			writeToDatabase(pluginResults{
-				ID:   getopt("MALICE_SCANID", hash),
+				ID:   utils.Getopt("MALICE_SCANID", hash),
 				Data: ss.Results,
 			})
 
@@ -356,7 +339,7 @@ func main() {
 				printMarkDownTable(ss)
 			} else {
 				ssJSON, err := json.Marshal(ss)
-				assert(err)
+				utils.Assert(err)
 				fmt.Println(string(ssJSON))
 			}
 		} else {
@@ -366,5 +349,5 @@ func main() {
 	}
 
 	err := app.Run(os.Args)
-	assert(err)
+	utils.Assert(err)
 }
