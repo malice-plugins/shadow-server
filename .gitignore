@@ -25,4 +25,10 @@ _testmain.go
 
 *.json
 
+release
+build
+
+.vscode
 debug
+
+*.bu
