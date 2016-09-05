@@ -3,7 +3,7 @@
 malice-shadow-server
 ====================
 
-[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/)
+[![Circle CI](https://circleci.com/gh/maliceio/malice-shadow-server.png?style=shield)](https://circleci.com/gh/maliceio/malice-shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker image-19.63 MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
 
 Malice ShadowServer Hash Lookup Plugin
 
@@ -11,7 +11,7 @@ This repository contains a **Dockerfile** of the [ShadowServer](https://www.shad
 
 ### Dependencies
 
--	[gliderlabs/alpine](https://index.docker.io/_/gliderlabs/alpine/)
+-	[malice/alpine:tini](https://hub.docker.com/r/malice/alpine/)
 
 ### Installation
 
@@ -199,29 +199,14 @@ This will output to stdout and POST to malice results API webhook endpoint.
 ```bash
 $ docker volume create --name malice
 $ docker run -d -p 28015:28015 -p 8080:8080 -v malice:/data --name rethink rethinkdb
-$ docker run --rm -v /path/to/malware:/malware:ro --link rethink:rethink malice/shadow-server -t MD5/SHA1
-```
-
-### To Run on OSX
-
--	Install [Homebrew](http://brew.sh)
-
-```bash
-$ brew install caskroom/cask/brew-cask
-$ brew cask install virtualbox
-$ brew install docker
-$ brew install docker-machine
-$ docker-machine create --driver virtualbox malice
-$ eval $(docker-machine env malice)
+$ docker run --rm --link rethink:rethink malice/shadow-server -t MD5/SHA1
 ```
 
 ### Documentation
 
 ### Issues
 
-Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/maliceio/malice-av/issues/new) and I'll get right on it.
-
-### Credits
+Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/maliceio/malice-shadow-server/issues/new) and I'll get right on it.
 
 ### License
 

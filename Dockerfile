@@ -1,4 +1,4 @@
-FROM gliderlabs/alpine
+FROM malice/alpine:tini
 
 MAINTAINER blacktop, https://github.com/blacktop
 
@@ -17,6 +17,6 @@ RUN apk-install -t build-deps go git mercurial \
 
 WORKDIR /malware
 
-ENTRYPOINT ["/bin/shadow-server"]
+ENTRYPOINT ["gosu","malice","/sbin/tini","--","shadow-server"]
 
 CMD ["--help"]
