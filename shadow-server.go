@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -47,17 +48,26 @@ type ResultsData struct {
 
 // SandBoxResults is a shadow-server SandboxApi results JSON object
 type SandBoxResults struct {
-	MD5       string            `json:"md5" gorethink:"md5"`
-	SHA1      string            `json:"sha1" gorethink:"sha1"`
-	FirstSeen time.Time         `json:"first_seen" gorethink:"first_seen"`
-	LastSeen  time.Time         `json:"last_seen" gorethink:"last_seen"`
-	FileType  string            `json:"type" gorethink:"type"`
-	SSDeep    string            `json:"ssdeep" gorethink:"ssdeep"`
+	MetaData  map[string]string `json:"metadata,omitempty" gorethink:"metadata,omitempty"`
 	Antivirus map[string]string `json:"antivirus" gorethink:"antivirus"`
+}
+
+type sandBoxMetaData struct {
+	MD5       string    `json:"md5" gorethink:"md5"`
+	SHA1      string    `json:"sha1" gorethink:"sha1"`
+	FirstSeen time.Time `json:"first_seen" gorethink:"first_seen"`
+	LastSeen  time.Time `json:"last_seen" gorethink:"last_seen"`
+	FileType  string    `json:"type" gorethink:"type"`
+	SSDeep    string    `json:"ssdeep" gorethink:"ssdeep"`
 }
 
 // WhiteListResults is a shadow-server bin-test results JSON object
 type WhiteListResults map[string]string
+
+// IsEmpty checks if ResultsData is empty
+func (r ResultsData) IsEmpty() bool {
+	return reflect.DeepEqual(r, ResultsData{})
+}
 
 func hashType(hash string) *grequests.RequestOptions {
 	if match, _ := regexp.MatchString("([a-fA-F0-9]{32})", hash); match {
@@ -90,49 +100,6 @@ func hashType(hash string) *grequests.RequestOptions {
 	}
 }
 
-func parseLookupHashOutput(lookupout string, hash string) ResultsData {
-	lookup := ResultsData{}
-
-	lines := strings.Split(lookupout, "\n")
-
-	if len(lines) == 1 {
-		if strings.Contains(lines[0], "! No match found") {
-			lookup.Found = false
-			return lookup
-		}
-		if strings.Contains(lines[0], "! Whitelisted:") {
-			lookup.Found = true
-			lookup.WhiteList = WhiteListHash(hash)
-			return lookup
-		}
-	} else if len(lines) == 3 {
-		values := strings.Split(lines[0], ",")
-		lookup.Found = true
-		lookup.WhiteList = WhiteListHash(hash)
-		if len(values) == 6 {
-			lookup.SandBox.MD5 = strings.Trim(values[0], "\"")
-			lookup.SandBox.SHA1 = strings.Trim(values[1], "\"")
-			// "2009-07-24 02:09:53"
-			const longForm = "2006-01-02 15:04:05"
-			timeFirstSeen, _ := time.Parse(longForm, strings.Trim(values[2], "\""))
-			lookup.SandBox.FirstSeen = timeFirstSeen
-			timeLastSeen, _ := time.Parse(longForm, strings.Trim(values[3], "\""))
-			lookup.SandBox.LastSeen = timeLastSeen
-			lookup.SandBox.FileType = strings.Trim(values[4], "\"")
-			lookup.SandBox.SSDeep = strings.Trim(values[5], "\"")
-		}
-		if len(lines[1]) == 2 {
-			lookup.SandBox.Antivirus = nil
-		} else {
-			utils.Assert(json.Unmarshal([]byte(lines[1]), &lookup.SandBox.Antivirus))
-		}
-	} else {
-		log.Fatal(fmt.Errorf("Unable to parse LookupHashOutput: %#v\n", lookupout))
-	}
-
-	return lookup
-}
-
 func parseWhiteListOutput(whitelistout string) WhiteListResults {
 	whitelist := WhiteListResults{}
 
@@ -149,13 +116,13 @@ func parseWhiteListOutput(whitelistout string) WhiteListResults {
 			utils.Assert(json.Unmarshal([]byte(fields[1]), &whitelist))
 		}
 	}
-	// fmt.Println("whitelist")
+
 	// fmt.Printf("%#v\n", whitelist)
 	return whitelist
 }
 
-// WhiteListHash test hash against a list of known software applications
-func WhiteListHash(hash string) WhiteListResults {
+// whiteListHash test hash against a list of known software applications
+func whiteListHash(hash string) WhiteListResults {
 
 	resp, err := grequests.Get("http://bin-test.shadowserver.org/api", hashType(hash))
 
@@ -170,8 +137,49 @@ func WhiteListHash(hash string) WhiteListResults {
 	return parseWhiteListOutput(resp.String())
 }
 
-// LookupHash retreieves the shadow-server file report for the given hash
-func LookupHash(hash string) ResultsData {
+func parseSandboxAPIOutput(sandboxapiout string) SandBoxResults {
+	var sandbox SandBoxResults
+
+	lines := strings.Split(sandboxapiout, "\n")
+
+	if len(lines) == 1 {
+		if strings.Contains(lines[0], "! No match found") {
+			return sandbox
+		}
+		if strings.Contains(lines[0], "! Whitelisted:") {
+			return sandbox
+		}
+	}
+
+	if len(lines) == 2 {
+		values := strings.Split(lines[0], ",")
+		if len(values) == 6 {
+			// "2009-07-24 02:09:53"
+			const longForm = "2006-01-02 15:04:05"
+			timeFirstSeen, _ := time.Parse(longForm, strings.Trim(values[2], "\""))
+			timeLastSeen, _ := time.Parse(longForm, strings.Trim(values[3], "\""))
+			meta := make(map[string]string)
+			meta["md5"] = strings.Trim(values[0], "\"")
+			meta["sha1"] = strings.Trim(values[1], "\"")
+			meta["first_seen"] = timeFirstSeen.String()
+			meta["last_seen"] = timeLastSeen.String()
+			meta["type"] = strings.Trim(values[4], "\"")
+			meta["ssdeep"] = strings.Trim(values[5], "\"")
+			sandbox = SandBoxResults{MetaData: meta}
+		}
+		if len(lines[1]) == 2 {
+			sandbox.Antivirus = nil
+		} else {
+			utils.Assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
+		}
+	}
+
+	return sandbox
+}
+
+// sandboxAPISearch search hash in AV results
+func sandboxAPISearch(hash string) SandBoxResults {
+
 	// NOTE: https://godoc.org/github.com/levigross/grequests
 	ro := &grequests.RequestOptions{
 		Params: map[string]string{
@@ -187,14 +195,35 @@ func LookupHash(hash string) ResultsData {
 	if resp.Ok != true {
 		log.Println("Request did not return OK")
 	}
-	ssResult := parseLookupHashOutput(resp.String(), hash)
+
 	// fmt.Println(resp.String())
-	// fmt.Printf("%#v", ssResult)
-	return ssResult
+	return parseSandboxAPIOutput(resp.String())
+}
+
+// LookupHash retreieves the shadow-server file report for the given hash
+func LookupHash(hash string) ResultsData {
+
+	lookup := ResultsData{}
+
+	lookup.WhiteList = whiteListHash(hash)
+	lookup.SandBox = sandboxAPISearch(hash)
+
+	if lookup.IsEmpty() {
+		lookup.Found = false
+	} else {
+		lookup.Found = true
+	}
+	// fmt.Printf("%#v", lookup)
+	return lookup
 }
 
 func printStatus(resp gorequest.Response, body string, errs []error) {
 	fmt.Println(resp.Status)
+}
+
+func printTableFormattedTime(t string) string {
+	timeInTableFormat, _ := time.Parse("2006-01-02 15:04:05 -0700 UTC", t)
+	return timeInTableFormat.Format("1/02/2006 3:04PM")
 }
 
 func printMarkDownTable(ss ShadowServer) {
@@ -212,8 +241,9 @@ func printMarkDownTable(ss ShadowServer) {
 		table.Print()
 	} else if ss.Results.SandBox.Antivirus != nil {
 		fmt.Println("##### AntiVirus")
-		fmt.Printf(" - FirstSeen: %s\n", ss.Results.SandBox.FirstSeen.Format("1/02/2006 3:04PM"))
-		fmt.Printf(" - LastSeen: %s\n", ss.Results.SandBox.LastSeen.Format("1/02/2006 3:04PM"))
+		// fmt.Printf(" - FirstSeen: %s\n", ss.Results.SandBox.MetaData["first_seen"].Format("1/02/2006 3:04PM"))
+		fmt.Printf(" - FirstSeen: %s\n", printTableFormattedTime(ss.Results.SandBox.MetaData["first_seen"]))
+		fmt.Printf(" - LastSeen: %s\n", printTableFormattedTime(ss.Results.SandBox.MetaData["last_seen"]))
 		fmt.Println()
 		table := clitable.New([]string{"Vendor", "Signature"})
 		for key, value := range ss.Results.SandBox.Antivirus {
