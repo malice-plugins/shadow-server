@@ -199,7 +199,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 ```bash
 $ docker volume create --name malice
 $ docker run -d -p 9200:9200 -v malice:/data --name elastic elasticsearch
-$ docker run --rm --link elastic:elastic malice/shadow-server -t MD5/SHA1
+$ docker run --rm --link elastic malice/shadow-server -t MD5/SHA1
 ```
 
 ### Documentation
