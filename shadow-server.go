@@ -29,11 +29,6 @@ const (
 	category = "intel"
 )
 
-// type pluginResults struct {
-// 	ID   string      `json:"id" gorethink:"id,omitempty"`
-// 	Data ResultsData `json:"shadow-server" gorethink:"shadow-server"`
-// }
-
 // ShadowServer json object
 type ShadowServer struct {
 	Results ResultsData `json:"shadow-server"`
