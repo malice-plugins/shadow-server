@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"regexp"
 	"strings"
 	"time"
 
-	elastic "gopkg.in/olivere/elastic.v3"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/crackcomm/go-clitable"
+	"github.com/fatih/structs"
 	"github.com/levigross/grequests"
-	"github.com/maliceio/go-plugin-utils/utils"
+	"github.com/maliceio/malice/malice/database/elasticsearch"
+	"github.com/maliceio/malice/utils"
 	"github.com/parnurzeal/gorequest"
 	"github.com/urfave/cli"
 )
@@ -30,10 +29,10 @@ const (
 	category = "intel"
 )
 
-type pluginResults struct {
-	ID   string      `json:"id" gorethink:"id,omitempty"`
-	Data ResultsData `json:"shadow-server" gorethink:"shadow-server"`
-}
+// type pluginResults struct {
+// 	ID   string      `json:"id" gorethink:"id,omitempty"`
+// 	Data ResultsData `json:"shadow-server" gorethink:"shadow-server"`
+// }
 
 // ShadowServer json object
 type ShadowServer struct {
@@ -71,34 +70,12 @@ func (r ResultsData) IsEmpty() bool {
 }
 
 func hashType(hash string) *grequests.RequestOptions {
-	if match, _ := regexp.MatchString("([a-fA-F0-9]{32})", hash); match {
-		return &grequests.RequestOptions{
-			Params: map[string]string{
-				"md5": hash,
-			},
-		}
-	} else if match, _ := regexp.MatchString("([a-fA-F0-9]{40})", hash); match {
-		return &grequests.RequestOptions{
-			Params: map[string]string{
-				"sha1": hash,
-			},
-		}
-	} else if match, _ := regexp.MatchString("([a-fA-F0-9]{64})", hash); match {
-		return &grequests.RequestOptions{
-			Params: map[string]string{
-				"sha256": hash,
-			},
-		}
-	} else if match, _ := regexp.MatchString("([a-fA-F0-9]{128})", hash); match {
-		return &grequests.RequestOptions{
-			Params: map[string]string{
-				"sha512": hash,
-			},
-		}
-	} else {
-		return &grequests.RequestOptions{ //, fmt.Errorf("%s is not a valid hash", hash)
-		}
+	hashTyp, err := utils.GetHashType(hash)
+	if err != nil {
+		return &grequests.RequestOptions{}
 	}
+
+	return &grequests.RequestOptions{Params: map[string]string{hashTyp: hash}}
 }
 
 func parseWhiteListOutput(whitelistout string) WhiteListResults {
@@ -257,101 +234,101 @@ func printMarkDownTable(ss ShadowServer) {
 	}
 }
 
-// writeToDatabase upserts plugin results into Database
-func writeToDatabase(results pluginResults) {
-	ElasticAddr := fmt.Sprintf("http://%s:9200", utils.Getopt("MALICE_ELASTICSEARCH", "elastic"))
-	log.Info(ElasticAddr)
-	client, err := elastic.NewSimpleClient(elastic.SetURL(ElasticAddr))
-	utils.Assert(err)
-
-	getSample, err := client.Get().
-		Index("malice").
-		Type("samples").
-		Id(results.ID).
-		Do()
-
-	fmt.Println(getSample)
-	fmt.Println(err)
-	if err != nil {
-
-	}
-
-	if getSample != nil && getSample.Found {
-		fmt.Printf("Got document %s in version %d from index %s, type %s\n", getSample.Id, getSample.Version, getSample.Index, getSample.Type)
-		updateScan := map[string]interface{}{
-			"plugins": map[string]interface{}{
-				category: map[string]interface{}{
-					name: results.Data,
-				},
-			},
-		}
-		update, err := client.Update().Index("malice").Type("samples").Id(getSample.Id).
-			Doc(updateScan).
-			Do()
-		utils.Assert(err)
-
-		log.Debugf("New version of sample %q is now %d\n", update.Id, update.Version)
-		// return *update
-
-	} else {
-
-		scan := map[string]interface{}{
-			// "id":      sample.SHA256,
-			// "file":      sample,
-			"plugins": map[string]interface{}{
-				category: map[string]interface{}{
-					name: results.Data,
-				},
-			},
-			"scan_date": time.Now().Format(time.RFC3339Nano),
-		}
-
-		newScan, err := client.Index().
-			Index("malice").
-			Type("samples").
-			OpType("create").
-			// Id("1").
-			BodyJson(scan).
-			Do()
-		utils.Assert(err)
-
-		log.Debugf("Indexed sample %s to index %s, type %s\n", newScan.Id, newScan.Index, newScan.Type)
-		// return *newScan
-	}
-	// // connect to RethinkDB
-	// session, err := r.Connect(r.ConnectOpts{
-	// 	Address:  fmt.Sprintf("%s:28015", utils.Getopt("MALICE_RETHINKDB", "rethink")),
-	// 	Timeout:  5 * time.Second,
-	// 	Database: "malice",
-	// })
-	// if err != nil {
-	// 	log.Debug(err)
-	// 	return
-	// }
-	// defer session.Close()
-	//
-	// res, err := r.Table("samples").Get(results.ID).Run(session)
-	// utils.Assert(err)
-	// defer res.Close()
-	//
-	// if res.IsNil() {
-	// 	// upsert into RethinkDB
-	// 	resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
-	// 	utils.Assert(err)
-	// 	log.Debug(resp)
-	// } else {
-	// 	resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
-	// 		"plugins": map[string]interface{}{
-	// 			category: map[string]interface{}{
-	// 				name: results.Data,
-	// 			},
-	// 		},
-	// 	}).RunWrite(session)
-	// 	utils.Assert(err)
-	//
-	// 	log.Debug(resp)
-	// }
-}
+// // writeToDatabase upserts plugin results into Database
+// func writeToDatabase(results pluginResults) {
+// 	ElasticAddr := fmt.Sprintf("http://%s:9200", utils.Getopt("MALICE_ELASTICSEARCH", "elastic"))
+// 	log.Info(ElasticAddr)
+// 	client, err := elastic.NewSimpleClient(elastic.SetURL(ElasticAddr))
+// 	utils.Assert(err)
+//
+// 	getSample, err := client.Get().
+// 		Index("malice").
+// 		Type("samples").
+// 		Id(results.ID).
+// 		Do()
+//
+// 	fmt.Println(getSample)
+// 	fmt.Println(err)
+// 	if err != nil {
+//
+// 	}
+//
+// 	if getSample != nil && getSample.Found {
+// 		fmt.Printf("Got document %s in version %d from index %s, type %s\n", getSample.Id, getSample.Version, getSample.Index, getSample.Type)
+// 		updateScan := map[string]interface{}{
+// 			"plugins": map[string]interface{}{
+// 				category: map[string]interface{}{
+// 					name: results.Data,
+// 				},
+// 			},
+// 		}
+// 		update, err := client.Update().Index("malice").Type("samples").Id(getSample.Id).
+// 			Doc(updateScan).
+// 			Do()
+// 		utils.Assert(err)
+//
+// 		log.Debugf("New version of sample %q is now %d\n", update.Id, update.Version)
+// 		// return *update
+//
+// 	} else {
+//
+// 		scan := map[string]interface{}{
+// 			// "id":      sample.SHA256,
+// 			// "file":      sample,
+// 			"plugins": map[string]interface{}{
+// 				category: map[string]interface{}{
+// 					name: results.Data,
+// 				},
+// 			},
+// 			"scan_date": time.Now().Format(time.RFC3339Nano),
+// 		}
+//
+// 		newScan, err := client.Index().
+// 			Index("malice").
+// 			Type("samples").
+// 			OpType("create").
+// 			// Id("1").
+// 			BodyJson(scan).
+// 			Do()
+// 		utils.Assert(err)
+//
+// 		log.Debugf("Indexed sample %s to index %s, type %s\n", newScan.Id, newScan.Index, newScan.Type)
+// 		// return *newScan
+// 	}
+// 	// // connect to RethinkDB
+// 	// session, err := r.Connect(r.ConnectOpts{
+// 	// 	Address:  fmt.Sprintf("%s:28015", utils.Getopt("MALICE_RETHINKDB", "rethink")),
+// 	// 	Timeout:  5 * time.Second,
+// 	// 	Database: "malice",
+// 	// })
+// 	// if err != nil {
+// 	// 	log.Debug(err)
+// 	// 	return
+// 	// }
+// 	// defer session.Close()
+// 	//
+// 	// res, err := r.Table("samples").Get(results.ID).Run(session)
+// 	// utils.Assert(err)
+// 	// defer res.Close()
+// 	//
+// 	// if res.IsNil() {
+// 	// 	// upsert into RethinkDB
+// 	// 	resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
+// 	// 	utils.Assert(err)
+// 	// 	log.Debug(resp)
+// 	// } else {
+// 	// 	resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
+// 	// 		"plugins": map[string]interface{}{
+// 	// 			category: map[string]interface{}{
+// 	// 				name: results.Data,
+// 	// 			},
+// 	// 		},
+// 	// 	}).RunWrite(session)
+// 	// 	utils.Assert(err)
+// 	//
+// 	// 	log.Debug(resp)
+// 	// }
+// }
 
 var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
 
@@ -420,9 +397,11 @@ func main() {
 			ss := ShadowServer{Results: ssReport}
 
 			// upsert into Database
-			writeToDatabase(pluginResults{
-				ID:   utils.Getopt("MALICE_SCANID", hash),
-				Data: ss.Results,
+			elasticsearch.WritePluginResultsToDatabase(elasticsearch.PluginResults{
+				ID:       utils.Getopt("MALICE_SCANID", hash),
+				Name:     name,
+				Category: category,
+				Data:     structs.Map(ss.Results),
 			})
 
 			if c.Bool("table") {
