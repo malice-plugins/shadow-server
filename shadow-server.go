@@ -9,13 +9,14 @@ import (
 	"strings"
 	"time"
 
+	elastic "gopkg.in/olivere/elastic.v3"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/crackcomm/go-clitable"
 	"github.com/levigross/grequests"
 	"github.com/maliceio/go-plugin-utils/utils"
 	"github.com/parnurzeal/gorequest"
 	"github.com/urfave/cli"
-	r "gopkg.in/dancannon/gorethink.v2"
 )
 
 // Version stores the plugin's version
@@ -258,39 +259,98 @@ func printMarkDownTable(ss ShadowServer) {
 
 // writeToDatabase upserts plugin results into Database
 func writeToDatabase(results pluginResults) {
-	// connect to RethinkDB
-	session, err := r.Connect(r.ConnectOpts{
-		Address:  fmt.Sprintf("%s:28015", utils.Getopt("MALICE_RETHINKDB", "rethink")),
-		Timeout:  5 * time.Second,
-		Database: "malice",
-	})
-	if err != nil {
-		log.Debug(err)
-		return
-	}
-	defer session.Close()
-
-	res, err := r.Table("samples").Get(results.ID).Run(session)
+	ElasticAddr := fmt.Sprintf("http://%s:9200", utils.Getopt("MALICE_ELASTICSEARCH", "elastic"))
+	log.Info(ElasticAddr)
+	client, err := elastic.NewSimpleClient(elastic.SetURL(ElasticAddr))
 	utils.Assert(err)
-	defer res.Close()
 
-	if res.IsNil() {
-		// upsert into RethinkDB
-		resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
-		utils.Assert(err)
-		log.Debug(resp)
-	} else {
-		resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
+	getSample, err := client.Get().
+		Index("malice").
+		Type("samples").
+		Id(results.ID).
+		Do()
+
+	fmt.Println(getSample)
+	fmt.Println(err)
+	if err != nil {
+
+	}
+
+	if getSample != nil && getSample.Found {
+		fmt.Printf("Got document %s in version %d from index %s, type %s\n", getSample.Id, getSample.Version, getSample.Index, getSample.Type)
+		updateScan := map[string]interface{}{
 			"plugins": map[string]interface{}{
 				category: map[string]interface{}{
 					name: results.Data,
 				},
 			},
-		}).RunWrite(session)
+		}
+		update, err := client.Update().Index("malice").Type("samples").Id(getSample.Id).
+			Doc(updateScan).
+			Do()
 		utils.Assert(err)
 
-		log.Debug(resp)
+		log.Debugf("New version of sample %q is now %d\n", update.Id, update.Version)
+		// return *update
+
+	} else {
+
+		scan := map[string]interface{}{
+			// "id":      sample.SHA256,
+			// "file":      sample,
+			"plugins": map[string]interface{}{
+				category: map[string]interface{}{
+					name: results.Data,
+				},
+			},
+			"scan_date": time.Now().Format(time.RFC3339Nano),
+		}
+
+		newScan, err := client.Index().
+			Index("malice").
+			Type("samples").
+			OpType("create").
+			// Id("1").
+			BodyJson(scan).
+			Do()
+		utils.Assert(err)
+
+		log.Debugf("Indexed sample %s to index %s, type %s\n", newScan.Id, newScan.Index, newScan.Type)
+		// return *newScan
 	}
+	// // connect to RethinkDB
+	// session, err := r.Connect(r.ConnectOpts{
+	// 	Address:  fmt.Sprintf("%s:28015", utils.Getopt("MALICE_RETHINKDB", "rethink")),
+	// 	Timeout:  5 * time.Second,
+	// 	Database: "malice",
+	// })
+	// if err != nil {
+	// 	log.Debug(err)
+	// 	return
+	// }
+	// defer session.Close()
+	//
+	// res, err := r.Table("samples").Get(results.ID).Run(session)
+	// utils.Assert(err)
+	// defer res.Close()
+	//
+	// if res.IsNil() {
+	// 	// upsert into RethinkDB
+	// 	resp, err := r.Table("samples").Insert(results, r.InsertOpts{Conflict: "replace"}).RunWrite(session)
+	// 	utils.Assert(err)
+	// 	log.Debug(resp)
+	// } else {
+	// 	resp, err := r.Table("samples").Get(results.ID).Update(map[string]interface{}{
+	// 		"plugins": map[string]interface{}{
+	// 			category: map[string]interface{}{
+	// 				name: results.Data,
+	// 			},
+	// 		},
+	// 	}).RunWrite(session)
+	// 	utils.Assert(err)
+	//
+	// 	log.Debug(resp)
+	// }
 }
 
 var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
@@ -321,18 +381,18 @@ func main() {
 	app.Version = Version + ", BuildTime: " + BuildTime
 	app.Compiled, _ = time.Parse("20060102", BuildTime)
 	app.Usage = "Malice ShadowServer Hash Lookup Plugin"
-	var rethinkdb string
+	var elasitcsearch string
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "verbose, V",
 			Usage: "verbose output",
 		},
 		cli.StringFlag{
-			Name:        "rethinkdb",
+			Name:        "elasitcsearch",
 			Value:       "",
-			Usage:       "rethinkdb address for Malice to store results",
-			EnvVar:      "MALICE_RETHINKDB",
-			Destination: &rethinkdb,
+			Usage:       "elasitcsearch address for Malice to store results",
+			EnvVar:      "MALICE_ELASTICSEARCH",
+			Destination: &elasitcsearch,
 		},
 		cli.BoolFlag{
 			Name:   "post, p",

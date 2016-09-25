@@ -36,7 +36,7 @@ Author:
 
 Options:
   --verbose, -V      verbose output
-  --rethinkdb value  rethinkdb address for Malice to store results [$MALICE_RETHINKDB]
+  --elasitcsearch value  elasitcsearch address for Malice to store results [$MALICE_ELASTICSEARCH]
   --post, -p         POST results to Malice webhook [$MALICE_ENDPOINT]
   --proxy, -x        proxy settings for Malice webhook endpoint [$MALICE_PROXY]
   --table, -t        output as Markdown table
@@ -194,12 +194,12 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ---
 
-### To write results to [RethinkDB](https://rethinkdb.com)
+### To write results to [ElasticSearch](https://www.elastic.co/products/elasticsearch)
 
 ```bash
 $ docker volume create --name malice
-$ docker run -d -p 28015:28015 -p 8080:8080 -v malice:/data --name rethink rethinkdb
-$ docker run --rm --link rethink:rethink malice/shadow-server -t MD5/SHA1
+$ docker run -d -p 9200:9200 -v malice:/data --name elastic elasticsearch
+$ docker run --rm --link elastic:elastic malice/shadow-server -t MD5/SHA1
 ```
 
 ### Documentation
