@@ -4,7 +4,7 @@ MAINTAINER blacktop, https://github.com/blacktop
 
 COPY . /go/src/github.com/maliceio/malice-shadow-server
 RUN apk-install ca-certificates
-RUN apk-install -t build-deps go git mercurial \
+RUN apk-install -t build-deps go git mercurial build-base \
   && set -x \
   && echo "Building info Go binary..." \
   && cd /go/src/github.com/maliceio/malice-shadow-server \

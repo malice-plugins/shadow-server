@@ -12,8 +12,8 @@ import (
 	"github.com/crackcomm/go-clitable"
 	"github.com/fatih/structs"
 	"github.com/levigross/grequests"
-	"github.com/maliceio/malice/malice/database/elasticsearch"
-	"github.com/maliceio/malice/utils"
+	"github.com/maliceio/go-plugin-utils/database/elasticsearch"
+	"github.com/maliceio/go-plugin-utils/utils"
 	"github.com/parnurzeal/gorequest"
 	"github.com/urfave/cli"
 )
@@ -41,24 +41,24 @@ type ShadowServer struct {
 
 // ResultsData json object
 type ResultsData struct {
-	Found     bool             `json:"found" gorethink:"found"`
-	SandBox   SandBoxResults   `json:"sandbox" gorethink:"sandbox"`
-	WhiteList WhiteListResults `json:"whitelist" gorethink:"whitelist"`
+	Found     bool             `json:"found" structs:"found"`
+	SandBox   SandBoxResults   `json:"sandbox" structs:"sandbox"`
+	WhiteList WhiteListResults `json:"whitelist" structs:"whitelist"`
 }
 
 // SandBoxResults is a shadow-server SandboxApi results JSON object
 type SandBoxResults struct {
-	MetaData  map[string]string `json:"metadata,omitempty" gorethink:"metadata,omitempty"`
-	Antivirus map[string]string `json:"antivirus" gorethink:"antivirus"`
+	MetaData  map[string]string `json:"metadata,omitempty" structs:"metadata,omitempty"`
+	Antivirus map[string]string `json:"antivirus" structs:"antivirus"`
 }
 
 type sandBoxMetaData struct {
-	MD5       string    `json:"md5" gorethink:"md5"`
-	SHA1      string    `json:"sha1" gorethink:"sha1"`
-	FirstSeen time.Time `json:"first_seen" gorethink:"first_seen"`
-	LastSeen  time.Time `json:"last_seen" gorethink:"last_seen"`
-	FileType  string    `json:"type" gorethink:"type"`
-	SSDeep    string    `json:"ssdeep" gorethink:"ssdeep"`
+	MD5       string    `json:"md5" structs:"md5"`
+	SHA1      string    `json:"sha1" structs:"sha1"`
+	FirstSeen time.Time `json:"first_seen" structs:"first_seen"`
+	LastSeen  time.Time `json:"last_seen" structs:"last_seen"`
+	FileType  string    `json:"type" structs:"type"`
+	SSDeep    string    `json:"ssdeep" structs:"ssdeep"`
 }
 
 // WhiteListResults is a shadow-server bin-test results JSON object
@@ -397,6 +397,7 @@ func main() {
 			ss := ShadowServer{Results: ssReport}
 
 			// upsert into Database
+			elasticsearch.InitElasticSearch()
 			elasticsearch.WritePluginResultsToDatabase(elasticsearch.PluginResults{
 				ID:       utils.Getopt("MALICE_SCANID", hash),
 				Name:     name,
