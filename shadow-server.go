@@ -227,6 +227,7 @@ func printMarkDownTable(ss ShadowServer) {
 	} else {
 		fmt.Println(" - Not found")
 	}
+	fmt.Println()
 }
 
 var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
