@@ -190,10 +190,6 @@ func LookupHash(hash string) ResultsData {
 	return lookup
 }
 
-func printStatus(resp gorequest.Response, body string, errs []error) {
-	fmt.Println(resp.Status)
-}
-
 func printTableFormattedTime(t string) string {
 	timeInTableFormat, _ := time.Parse("2006-01-02 15:04:05 -0700 UTC", t)
 	return timeInTableFormat.Format("1/02/2006 3:04PM")
@@ -230,35 +226,23 @@ func printMarkDownTable(ss ShadowServer) {
 	fmt.Println()
 }
 
-var appHelpTemplate = `Usage: {{.Name}} {{if .Flags}}[OPTIONS] {{end}}COMMAND [arg...]
-
-{{.Usage}}
-
-Version: {{.Version}}{{if or .Author .Email}}
-
-Author:{{if .Author}}
-  {{.Author}}{{if .Email}} - <{{.Email}}>{{end}}{{else}}
-  {{.Email}}{{end}}{{end}}
-{{if .Flags}}
-Options:
-  {{range .Flags}}{{.}}
-  {{end}}{{end}}
-Commands:
-  {{range .Commands}}{{.Name}}{{with .ShortName}}, {{.}}{{end}}{{ "\t" }}{{.Usage}}
-  {{end}}
-Run '{{.Name}} COMMAND --help' for more information on a command.
-`
+func printStatus(resp gorequest.Response, body string, errs []error) {
+	fmt.Println(body)
+}
 
 func main() {
-	cli.AppHelpTemplate = appHelpTemplate
+
+	var elastic string
+
+	cli.AppHelpTemplate = utils.AppHelpTemplate
 	app := cli.NewApp()
+
 	app.Name = "shadow-server"
 	app.Author = "blacktop"
 	app.Email = "https://github.com/blacktop"
 	app.Version = Version + ", BuildTime: " + BuildTime
 	app.Compiled, _ = time.Parse("20060102", BuildTime)
 	app.Usage = "Malice ShadowServer Hash Lookup Plugin"
-	var elasitcsearch string
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "verbose, V",
@@ -269,7 +253,7 @@ func main() {
 			Value:       "",
 			Usage:       "elasitcsearch address for Malice to store results",
 			EnvVar:      "MALICE_ELASTICSEARCH",
-			Destination: &elasitcsearch,
+			Destination: &elastic,
 		},
 		cli.BoolFlag{
 			Name:   "post, p",
@@ -288,16 +272,18 @@ func main() {
 	}
 	app.ArgsUsage = "MD5/SHA1 hash of file"
 	app.Action = func(c *cli.Context) error {
+
 		if c.Args().Present() {
 			if c.Bool("verbose") {
 				log.SetLevel(log.DebugLevel)
 			}
+
 			hash := c.Args().First()
 			ssReport := LookupHash(hash)
 			ss := ShadowServer{Results: ssReport}
 
 			// upsert into Database
-			elasticsearch.InitElasticSearch()
+			elasticsearch.InitElasticSearch(elastic)
 			elasticsearch.WritePluginResultsToDatabase(elasticsearch.PluginResults{
 				ID:       utils.Getopt("MALICE_SCANID", hash),
 				Name:     name,
@@ -310,6 +296,18 @@ func main() {
 			} else {
 				ssJSON, err := json.Marshal(ss)
 				utils.Assert(err)
+				if c.Bool("post") {
+					request := gorequest.New()
+					if c.Bool("proxy") {
+						request = gorequest.New().Proxy(os.Getenv("MALICE_PROXY"))
+					}
+					request.Post(os.Getenv("MALICE_ENDPOINT")).
+						Set("X-Malice-ID", utils.Getopt("MALICE_SCANID", hash)).
+						Send(string(ssJSON)).
+						End(printStatus)
+
+					return nil
+				}
 				fmt.Println(string(ssJSON))
 			}
 		} else {

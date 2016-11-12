@@ -194,19 +194,33 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ---
 
+Documentation
+-------------
+
 ### To write results to [ElasticSearch](https://www.elastic.co/products/elasticsearch)
 
 ```bash
 $ docker volume create --name malice
-$ docker run -d -p 9200:9200 -v malice:/data --name elastic elasticsearch
+$ docker run -d --name elastic \
+                -p 9200:9200 \
+                -v malice:/usr/share/elasticsearch/data \
+                 blacktop/elasticsearch
 $ docker run --rm --link elastic malice/shadow-server -t MD5/SHA1
 ```
-
-### Documentation
 
 ### Issues
 
 Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/maliceio/malice-shadow-server/issues/new) and I'll get right on it.
+
+### CHANGELOG
+
+See [`CHANGELOG.md`](https://github.com/maliceio/malice-shadow-server/blob/master/CHANGELOG.md)
+
+### Contributing
+
+[See all contributors on GitHub](https://github.com/maliceio/malice-shadow-server/graphs/contributors).
+
+Please update the [CHANGELOG.md](https://github.com/maliceio/malice-shadow-server/blob/master/CHANGELOG.md) and submit a [Pull Request on GitHub](https://help.github.com/articles/using-pull-requests/).
 
 ### License
 
