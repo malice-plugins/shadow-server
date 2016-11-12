@@ -26,3 +26,5 @@ All notable changes to this project will be documented in this file.
 ### Removed
 
 ### Changed
+
+-	Upgrade golang to 1.7.3
