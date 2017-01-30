@@ -12,7 +12,9 @@ dependencies:
     - mkdir -p ~/docker; docker save malice_shadow > ~/docker/image.tar
 test:
   override:
-    - docker run malice_shadow 6fe80e56ad4de610304bab1675ce84d16ab6988e
+    - docker images malice_shadow
+    - docker run malice_shadow -V 6fe80e56ad4de610304bab1675ce84d16ab6988e | jq .
+    - docker run malice_shadow -V 6fe80e56ad4de610304bab1675ce84d16ab6988e | jq -r .floss.markdown
 
 deployment:
   # master:

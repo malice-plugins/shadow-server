@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"reflect"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/crackcomm/go-clitable"
 	"github.com/fatih/structs"
+	"github.com/gorilla/mux"
 	"github.com/levigross/grequests"
 	"github.com/maliceio/go-plugin-utils/database/elasticsearch"
 	"github.com/maliceio/go-plugin-utils/utils"
@@ -23,6 +25,8 @@ var Version string
 
 // BuildTime stores the plugin's build time
 var BuildTime string
+
+var hash string
 
 const (
 	name     = "shadow-server"
@@ -59,6 +63,16 @@ type sandBoxMetaData struct {
 // WhiteListResults is a shadow-server bin-test results JSON object
 type WhiteListResults map[string]string
 
+func assert(err error) {
+	if err != nil {
+		log.WithFields(log.Fields{
+			"plugin":   name,
+			"category": category,
+			"hash":     hash,
+		}).Fatal(err)
+	}
+}
+
 // IsEmpty checks if ResultsData is empty
 func (r ResultsData) IsEmpty() bool {
 	return reflect.DeepEqual(r, ResultsData{})
@@ -86,7 +100,7 @@ func parseWhiteListOutput(whitelistout string) WhiteListResults {
 			if fields[1] == "" {
 				return nil
 			}
-			utils.Assert(json.Unmarshal([]byte(fields[1]), &whitelist))
+			assert(json.Unmarshal([]byte(fields[1]), &whitelist))
 		}
 	}
 
@@ -143,7 +157,7 @@ func parseSandboxAPIOutput(sandboxapiout string) SandBoxResults {
 		if len(lines[1]) == 2 {
 			sandbox.Antivirus = nil
 		} else {
-			utils.Assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
+			assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
 		}
 	}
 
@@ -230,6 +244,32 @@ func printStatus(resp gorequest.Response, body string, errs []error) {
 	fmt.Println(body)
 }
 
+func webService() {
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/lookup/{hash}", webLookUp)
+	log.Info("web service listening on port :3993")
+	log.Fatal(http.ListenAndServe(":3993", router))
+}
+
+func webLookUp(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	hash := vars["hash"]
+
+	hashType, _ := utils.GetHashType(hash)
+
+	if strings.EqualFold(hashType, "sha1") || strings.EqualFold(hashType, "md5") {
+		ss := ShadowServer{Results: LookupHash(hash)}
+
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		if err := json.NewEncoder(w).Encode(ss); err != nil {
+			panic(err)
+		}
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "Please supply a proper MD5/SHA1 hash to query")
+	}
+}
+
 func main() {
 
 	var elastic string
@@ -256,7 +296,7 @@ func main() {
 			Destination: &elastic,
 		},
 		cli.BoolFlag{
-			Name:   "post, p",
+			Name:   "callback, c",
 			Usage:  "POST results to Malice webhook",
 			EnvVar: "MALICE_ENDPOINT",
 		},
@@ -273,14 +313,14 @@ func main() {
 	app.ArgsUsage = "MD5/SHA1 hash of file"
 	app.Action = func(c *cli.Context) error {
 
-		if c.Args().Present() {
-			if c.Bool("verbose") {
-				log.SetLevel(log.DebugLevel)
-			}
+		if c.Bool("verbose") {
+			log.SetLevel(log.DebugLevel)
+		}
 
-			hash := c.Args().First()
-			ssReport := LookupHash(hash)
-			ss := ShadowServer{Results: ssReport}
+		if c.Args().Present() {
+
+			hash = c.Args().First()
+			ss := ShadowServer{Results: LookupHash(hash)}
 
 			// upsert into Database
 			elasticsearch.InitElasticSearch(elastic)
@@ -295,7 +335,7 @@ func main() {
 				printMarkDownTable(ss)
 			} else {
 				ssJSON, err := json.Marshal(ss)
-				utils.Assert(err)
+				assert(err)
 				if c.Bool("post") {
 					request := gorequest.New()
 					if c.Bool("proxy") {
@@ -317,5 +357,5 @@ func main() {
 	}
 
 	err := app.Run(os.Args)
-	utils.Assert(err)
+	assert(err)
 }

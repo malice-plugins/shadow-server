@@ -12,3 +12,4 @@ circle.yml
 debug
 docker-entrypoint.sh
 logo.png
+.vscode
