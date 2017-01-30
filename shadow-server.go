@@ -261,6 +261,12 @@ func webLookUp(w http.ResponseWriter, r *http.Request) {
 		ss := ShadowServer{Results: LookupHash(hash)}
 
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		if ss.Results.Found {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusNotFound)
+		}
+
 		if err := json.NewEncoder(w).Encode(ss); err != nil {
 			panic(err)
 		}
