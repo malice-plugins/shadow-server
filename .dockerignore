@@ -13,3 +13,4 @@ debug
 docker-entrypoint.sh
 logo.png
 .vscode
+results.json
