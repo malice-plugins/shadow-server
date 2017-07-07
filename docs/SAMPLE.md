@@ -5,29 +5,29 @@
 
 | Vendor      | Signature                              |
 | ----------- | -------------------------------------- |
-| TrendMicro  | BKDR_LECNA.SM                          |
-| Microsoft   | Backdoor:Win32/Lecna!dha               |
-| Avast       | Win32:Lecna-I                          |
-| Ikarus      | Backdoor.Win32.Lecna                   |
-| McAfee      | BackDoor-CSB                           |
-| Sophos      | Troj/Lecna-Q                           |
 | Comodo      | Backdoor.Win32.Lecna.AB                |
-| Symantec    | W32.Lecna.D                            |
-| Fortinet    | W32/Generic.AC.1FAF5A!tr               |
-| K7          | Trojan ( 00013a571 )                   |
-| K7GW        | Trojan ( 00013a571 )                   |
-| GData       | Backdoor.Lecna.AB                      |
-| DrWeb       | BackDoor.Dizhi                         |
 | QuickHeal   | TrojanAPT.LecnaCBack.MUE.Z3            |
-| Authentium  | W32/Lecnac.A.gen!Eldorado              |
-| AhnLab      | Win-Trojan/Lecna.61440                 |
+| Microsoft   | Backdoor:Win32/Lecna!dha               |
 | MicroWorld  | Backdoor.Lecna.AB                      |
 | Avira       | WORM/Rbot.Gen                          |
 | AVG         | Win32/DH{IIEXEx4XA2EICXwkIiU}          |
 | Eset        | Win32/Lecna.W                          |
+| Sophos      | Troj/Lecna-Q                           |
 | FProt       | W32/Trojan.AAWD                        |
 | Clam        | PUA.Win.Packer.AcprotectUltraprotect-1 |
+| DrWeb       | BackDoor.Dizhi                         |
 | BitDefender | Backdoor.Lecna.AB                      |
+| Authentium  | W32/Lecnac.A.gen!Eldorado              |
+| GData       | Backdoor.Lecna.AB                      |
+| TrendMicro  | BKDR_LECNA.SM                          |
+| Symantec    | W32.Lecna.D                            |
+| Avast       | Win32:Lecna-I                          |
+| Fortinet    | W32/Generic.AC.1FAF5A!tr               |
+| K7          | Trojan ( 00013a571 )                   |
+| Ikarus      | Backdoor.Win32.Lecna                   |
+| McAfee      | BackDoor-CSB                           |
+| AhnLab      | Win-Trojan/Lecna.61440                 |
+| K7GW        | Trojan ( 00013a571 )                   |
 
 #### ShadowServer
 ##### WhiteList

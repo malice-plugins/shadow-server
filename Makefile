@@ -22,11 +22,15 @@ tar:
 
 test:
 	@docker run --rm $(ORG)/$(NAME):$(VERSION) --help
-	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V 669f87f2ec48dce3a76386eec94d7e3b | jq . > docs/results.json
-	cat docs/results.json | jq .
-	@echo "===> Test lookup sandbox"
+	@echo "===> Test JSON sandbox"
+	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V 669f87f2ec48dce3a76386eec94d7e3b | jq . > docs/sandbox.json
+	cat docs/sandbox.json | jq .
+	@echo "===> Test JSON whitelist"
+	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V 7a90f8b051bc82cc9cadbcc9ba345ced02891a6c | jq . > docs/whitelist.json
+	cat docs/whitelist.json | jq .	
+	@echo "===> Test Markdown sandbox"
 	@docker run --rm $(ORG)/$(NAME):$(VERSION) -t 669f87f2ec48dce3a76386eec94d7e3b| tee docs/SAMPLE.md
-	@echo "===> Test lookup whitelist"
+	@echo "===> Test Markdown whitelist"
 	@docker run --rm $(ORG)/$(NAME):$(VERSION) -t 7a90f8b051bc82cc9cadbcc9ba345ced02891a6c | tee -a docs/SAMPLE.md
 
 circle: ci-size
