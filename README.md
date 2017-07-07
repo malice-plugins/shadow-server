@@ -1,9 +1,9 @@
-![SS logo](https://raw.githubusercontent.com/maliceio/malice-shadow-server/master/logo.png)
+![SS logo](https://raw.githubusercontent.com/malice-plugins/shadow-server/master/docs/logo.png)
 
 malice-shadow-server
 ====================
 
-[![Circle CI](https://circleci.com/gh/maliceio/malice-shadow-server.png?style=shield)](https://circleci.com/gh/maliceio/malice-shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker image-20.8 MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
+[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-21.3MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
 
 Malice ShadowServer Hash Lookup Plugin
 
@@ -51,7 +51,10 @@ Run 'shadow-server COMMAND --help' for more information on a command.
 
 This will output to stdout and POST to malice results API webhook endpoint.
 
-### Sample Output **sandbox** JSON:
+Sample Output
+-------------
+
+### **sandbox** JSON:
 
 ```json
 {
@@ -92,7 +95,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 }
 ```
 
-### Sample Output **whitelist** JSON:
+### **whitelist** JSON:
 
 ```json
 {
@@ -144,7 +147,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 }
 ```
 
-### Sample Output **whitelist** (Markdown Table):
+### **whitelist** (Markdown Table):
 
 ---
 
@@ -158,7 +161,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ---
 
-### Sample Output **sandbox** (Markdown Table):
+### **sandbox** (Markdown Table):
 
 ---
 
@@ -210,17 +213,17 @@ $ docker run --rm --link elastic malice/shadow-server -t MD5/SHA1
 
 ### Issues
 
-Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/maliceio/malice-shadow-server/issues/new) and I'll get right on it.
+Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/malice-plugins/shadow-server/issues/new) and I'll get right on it.
 
 ### CHANGELOG
 
-See [`CHANGELOG.md`](https://github.com/maliceio/malice-shadow-server/blob/master/CHANGELOG.md)
+See [`CHANGELOG.md`](https://github.com/malice-plugins/shadow-server/blob/master/CHANGELOG.md)
 
 ### Contributing
 
-[See all contributors on GitHub](https://github.com/maliceio/malice-shadow-server/graphs/contributors).
+[See all contributors on GitHub](https://github.com/malice-plugins/shadow-server/graphs/contributors).
 
-Please update the [CHANGELOG.md](https://github.com/maliceio/malice-shadow-server/blob/master/CHANGELOG.md) and submit a [Pull Request on GitHub](https://help.github.com/articles/using-pull-requests/).
+Please update the [CHANGELOG.md](https://github.com/malice-plugins/shadow-server/blob/master/CHANGELOG.md) and submit a [Pull Request on GitHub](https://help.github.com/articles/using-pull-requests/).
 
 ### License
 

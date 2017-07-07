@@ -1,8 +1,13 @@
 FROM malice/alpine
 
-MAINTAINER blacktop, https://github.com/blacktop
+LABEL maintainer "https://github.com/blacktop"
 
-COPY . /go/src/github.com/maliceio/malice-shadow-server
+LABEL malice.plugin.repository = "https://github.com/malice-plugins/shadow-server.git"
+LABEL malice.plugin.category="intel"
+LABEL malice.plugin.mime="hash"
+LABEL malice.plugin.docker.engine="*"
+
+COPY . /go/src/github.com/malice-plugins/shadow-server
 RUN apk --update add --no-cache ca-certificates
 RUN apk --update add --no-cache -t .build-deps \
                                     build-base \
@@ -15,7 +20,7 @@ RUN apk --update add --no-cache -t .build-deps \
                                     gcc \
                                     go \
   && echo "===> Building info Go binary..." \
-  && cd /go/src/github.com/maliceio/malice-shadow-server \
+  && cd /go/src/github.com/malice-plugins/shadow-server \
   && export GOPATH=/go \
   && go version \
   && go get \

@@ -1,5 +1,9 @@
 # Ignore .git folder
 .git*
+.gitignore
+
+.circleci*
+docs*
 
 CHANGELOG.md
 LICENSE
@@ -8,9 +12,6 @@ README.md
 README.md.bu
 VERSION
 build
-circle.yml
 debug
 docker-entrypoint.sh
-logo.png
 .vscode
-results.json
