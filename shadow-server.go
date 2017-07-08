@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"reflect"
@@ -19,13 +21,14 @@ import (
 	"github.com/urfave/cli"
 )
 
-// Version stores the plugin's version
-var Version string
+var (
+	// Version stores the plugin's version
+	Version string
+	// BuildTime stores the plugin's build time
+	BuildTime string
 
-// BuildTime stores the plugin's build time
-var BuildTime string
-
-var hash string
+	hash string
+)
 
 const (
 	name     = "shadow_server"
@@ -42,6 +45,7 @@ type ResultsData struct {
 	Found     bool             `json:"found" structs:"found"`
 	SandBox   SandBoxResults   `json:"sandbox" structs:"sandbox"`
 	WhiteList WhiteListResults `json:"whitelist" structs:"whitelist"`
+	MarkDown  string           `json:"markdown,omitempty" structs:"markdown,omitempty"`
 }
 
 // SandBoxResults is a shadow-server SandboxApi results JSON object
@@ -208,6 +212,19 @@ func printTableFormattedTime(t string) string {
 	return timeInTableFormat.Format("1/02/2006 3:04PM")
 }
 
+func generateMarkDownTable(ss ShadowServer) string {
+	var tplOut bytes.Buffer
+
+	t := template.Must(template.New("").Parse(tpl))
+
+	err := t.Execute(&tplOut, ss.Results)
+	if err != nil {
+		log.Println("executing template:", err)
+	}
+
+	return tplOut.String()
+}
+
 func printStatus(resp gorequest.Response, body string, errs []error) {
 	fmt.Println(body)
 }
@@ -221,7 +238,7 @@ func webService() {
 
 func webLookUp(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	hash := vars["hash"]
+	hash = vars["hash"]
 
 	hashType, _ := utils.GetHashType(hash)
 
@@ -240,7 +257,7 @@ func webLookUp(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "Please supply a proper MD5/SHA1 hash to query")
+		fmt.Fprintln(w, "please supply a proper MD5/SHA1 hash to query")
 	}
 }
 
@@ -295,6 +312,7 @@ func main() {
 
 			hash = c.Args().First()
 			ss := ShadowServer{Results: LookupHash(hash)}
+			ss.Results.MarkDown = generateMarkDownTable(ss)
 
 			// upsert into Database
 			elasticsearch.InitElasticSearch(elastic)
@@ -306,8 +324,9 @@ func main() {
 			})
 
 			if c.Bool("table") {
-				printMarkDownTable(ss)
+				fmt.Println(ss.Results.MarkDown)
 			} else {
+				ss.Results.MarkDown = ""
 				ssJSON, err := json.Marshal(ss)
 				assert(err)
 				if c.Bool("post") {
@@ -325,7 +344,7 @@ func main() {
 				fmt.Println(string(ssJSON))
 			}
 		} else {
-			log.Fatal(fmt.Errorf("Please supply a MD5/SHA1 hash to query."))
+			log.Fatal(fmt.Errorf("please supply a MD5/SHA1 hash to query"))
 		}
 		return nil
 	}
