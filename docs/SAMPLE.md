@@ -3,8 +3,9 @@
 ##### AntiVirus
  - FirstSeen: 2016-11-03 09:09:50 &#43;0000 UTC
  - LastSeen: 2017-01-04 09:42:36 &#43;0000 UTC
+
 | Vendor          | Signature        |
-|:---------------:|:----------------:|
+|:----------------|:-----------------|
 | AVG | Win32/DH{IIEXEx4XA2EICXwkIiU} |
 | AhnLab | Win-Trojan/Lecna.61440 |
 | Authentium | W32/Lecnac.A.gen!Eldorado |
@@ -40,8 +41,9 @@
 ##### AntiVirus
  - FirstSeen: 2009-07-24 02:09:53 &#43;0000 UTC
  - LastSeen: 2009-07-24 02:09:53 &#43;0000 UTC
+
 | Vendor          | Signature        |
-|:---------------:|:----------------:|
+|:----------------|:-----------------|
 | AVG | Downloader.Swizzor |
 
 

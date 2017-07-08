@@ -13,14 +13,14 @@
       {
         "_index": "malice",
         "_type": "samples",
-        "_id": "AV0f3QdLPqfrvw11zerH",
+        "_id": "AV0f54Nk04eVZcquap_h",
         "_score": 1,
         "_source": {
           "plugins": {
             "intel": {
               "shadow_server": {
                 "found": true,
-                "markdown": "#### ShadowServer\n\n##### AntiVirus\n - FirstSeen: 2016-11-03 09:09:50 &#43;0000 UTC\n - LastSeen: 2017-01-04 09:42:36 &#43;0000 UTC\n| Vendor          | Signature        |\n|:---------------:|:----------------:|\n| AVG | Win32/DH{IIEXEx4XA2EICXwkIiU} |\n| AhnLab | Win-Trojan/Lecna.61440 |\n| Authentium | W32/Lecnac.A.gen!Eldorado |\n| Avast | Win32:Lecna-I |\n| Avira | WORM/Rbot.Gen |\n| BitDefender | Backdoor.Lecna.AB |\n| Clam | PUA.Win.Packer.AcprotectUltraprotect-1 |\n| Comodo | Backdoor.Win32.Lecna.AB |\n| DrWeb | BackDoor.Dizhi |\n| Eset | Win32/Lecna.W |\n| FProt | W32/Trojan.AAWD |\n| Fortinet | W32/Generic.AC.1FAF5A!tr |\n| GData | Backdoor.Lecna.AB |\n| Ikarus | Backdoor.Win32.Lecna |\n| K7 | Trojan ( 00013a571 ) |\n| K7GW | Trojan ( 00013a571 ) |\n| McAfee | BackDoor-CSB |\n| MicroWorld | Backdoor.Lecna.AB |\n| Microsoft | Backdoor:Win32/Lecna!dha |\n| QuickHeal | TrojanAPT.LecnaCBack.MUE.Z3 |\n| Sophos | Troj/Lecna-Q |\n| Symantec | W32.Lecna.D |\n| TrendMicro | BKDR_LECNA.SM |\n\n",
+                "markdown": "#### ShadowServer\n\n##### AntiVirus\n - FirstSeen: 2016-11-03 09:09:50 &#43;0000 UTC\n - LastSeen: 2017-01-04 09:42:36 &#43;0000 UTC\n\n| Vendor          | Signature        |\n|:----------------|:-----------------|\n| AVG | Win32/DH{IIEXEx4XA2EICXwkIiU} |\n| AhnLab | Win-Trojan/Lecna.61440 |\n| Authentium | W32/Lecnac.A.gen!Eldorado |\n| Avast | Win32:Lecna-I |\n| Avira | WORM/Rbot.Gen |\n| BitDefender | Backdoor.Lecna.AB |\n| Clam | PUA.Win.Packer.AcprotectUltraprotect-1 |\n| Comodo | Backdoor.Win32.Lecna.AB |\n| DrWeb | BackDoor.Dizhi |\n| Eset | Win32/Lecna.W |\n| FProt | W32/Trojan.AAWD |\n| Fortinet | W32/Generic.AC.1FAF5A!tr |\n| GData | Backdoor.Lecna.AB |\n| Ikarus | Backdoor.Win32.Lecna |\n| K7 | Trojan ( 00013a571 ) |\n| K7GW | Trojan ( 00013a571 ) |\n| McAfee | BackDoor-CSB |\n| MicroWorld | Backdoor.Lecna.AB |\n| Microsoft | Backdoor:Win32/Lecna!dha |\n| QuickHeal | TrojanAPT.LecnaCBack.MUE.Z3 |\n| Sophos | Troj/Lecna-Q |\n| Symantec | W32.Lecna.D |\n| TrendMicro | BKDR_LECNA.SM |\n\n",
                 "sandbox": {
                   "antivirus": {
                     "AVG": "Win32/DH{IIEXEx4XA2EICXwkIiU}",
@@ -60,20 +60,20 @@
               }
             }
           },
-          "scan_date": "2017-07-08T01:42:45.308739692Z"
+          "scan_date": "2017-07-08T01:54:12.436931421Z"
         }
       },
       {
         "_index": "malice",
         "_type": "samples",
-        "_id": "AV0f3RfYPqfrvw11zerI",
+        "_id": "AV0f55QE04eVZcquap_i",
         "_score": 1,
         "_source": {
           "plugins": {
             "intel": {
               "shadow_server": {
                 "found": true,
-                "markdown": "#### ShadowServer\n\n##### WhiteList\n| Filename      | Description      | ProductName      |\n|:-------------:|:-------------:|:----------------:|:----------------:|\n| notepad.exe | Notepad | Microsoft Windows Operating System |\n\n##### AntiVirus\n - FirstSeen: 2009-07-24 02:09:53 &#43;0000 UTC\n - LastSeen: 2009-07-24 02:09:53 &#43;0000 UTC\n| Vendor          | Signature        |\n|:---------------:|:----------------:|\n| AVG | Downloader.Swizzor |\n\n",
+                "markdown": "#### ShadowServer\n\n##### WhiteList\n| Filename      | Description      | ProductName      |\n|:-------------:|:-------------:|:----------------:|:----------------:|\n| notepad.exe | Notepad | Microsoft Windows Operating System |\n\n##### AntiVirus\n - FirstSeen: 2009-07-24 02:09:53 &#43;0000 UTC\n - LastSeen: 2009-07-24 02:09:53 &#43;0000 UTC\n\n| Vendor          | Signature        |\n|:----------------|:-----------------|\n| AVG | Downloader.Swizzor |\n\n",
                 "sandbox": {
                   "antivirus": {
                     "AVG": "Downloader.Swizzor"
@@ -125,7 +125,7 @@
               }
             }
           },
-          "scan_date": "2017-07-08T01:42:49.558539633Z"
+          "scan_date": "2017-07-08T01:54:16.706525589Z"
         }
       }
     ]

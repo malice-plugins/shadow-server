@@ -11,8 +11,9 @@ const tpl = `#### ShadowServer
 ##### AntiVirus
  - FirstSeen: {{index .SandBox.MetaData "first_seen"}}
  - LastSeen: {{index .SandBox.MetaData "last_seen"}}
+
 | Vendor          | Signature        |
-|:---------------:|:----------------:|
+|:----------------|:-----------------|
 {{- range $key, $value := .SandBox.Antivirus }}
 | {{ $key }} | {{ $value }} |
 {{- end }}
