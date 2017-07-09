@@ -10,7 +10,6 @@ LICENSE
 Makefile
 README.md
 README.md.bu
-VERSION
 build
 debug
 docker-entrypoint.sh

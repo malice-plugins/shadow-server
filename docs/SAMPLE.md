@@ -1,8 +1,7 @@
 #### ShadowServer
-
 ##### AntiVirus
- - FirstSeen: 2016-11-03 09:09:50 &#43;0000 UTC
- - LastSeen: 2017-01-04 09:42:36 &#43;0000 UTC
+ - FirstSeen: 11/03/2016 9:09AM
+ - LastSeen: 1/04/2017 9:42AM
 
 | Vendor          | Signature        |
 |:----------------|:-----------------|
@@ -30,20 +29,10 @@
 | Symantec | W32.Lecna.D |
 | TrendMicro | BKDR_LECNA.SM |
 
-
 #### ShadowServer
 
 ##### WhiteList
 | Filename      | Description      | ProductName      |
-|:-------------:|:-------------:|:----------------:|:----------------:|
+|:-------------:|:----------------:|:----------------:|
 | notepad.exe | Notepad | Microsoft Windows Operating System |
-
-##### AntiVirus
- - FirstSeen: 2009-07-24 02:09:53 &#43;0000 UTC
- - LastSeen: 2009-07-24 02:09:53 &#43;0000 UTC
-
-| Vendor          | Signature        |
-|:----------------|:-----------------|
-| AVG | Downloader.Swizzor |
-
 

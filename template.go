@@ -1,13 +1,12 @@
 package main
 
 const tpl = `#### ShadowServer
-{{ with $wl := .WhiteList }}
+{{ if .WhiteList }}
 ##### WhiteList
 | Filename      | Description      | ProductName      |
-|:-------------:|:-------------:|:----------------:|:----------------:|
-| {{index $wl "filename"}} | {{index $wl "description"}} | {{index $wl "product_name"}} |
-{{ end }}
-{{ if .SandBox.Antivirus -}}
+|:-------------:|:----------------:|:----------------:|
+| {{index .WhiteList "filename"}} | {{index .WhiteList "description"}} | {{index .WhiteList "product_name"}} |
+{{- else if .SandBox.Antivirus -}}
 ##### AntiVirus
  - FirstSeen: {{index .SandBox.MetaData "first_seen"}}
  - LastSeen: {{index .SandBox.MetaData "last_seen"}}
@@ -17,7 +16,7 @@ const tpl = `#### ShadowServer
 {{- range $key, $value := .SandBox.Antivirus }}
 | {{ $key }} | {{ $value }} |
 {{- end }}
-{{ else }}
+{{- else }}
  - Not found
 {{- end }}
 `

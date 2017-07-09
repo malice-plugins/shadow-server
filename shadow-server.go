@@ -15,8 +15,8 @@ import (
 	"github.com/fatih/structs"
 	"github.com/gorilla/mux"
 	"github.com/levigross/grequests"
-	"github.com/maliceio/go-plugin-utils/database/elasticsearch"
-	"github.com/maliceio/go-plugin-utils/utils"
+	"github.com/malice-plugins/go-plugin-utils/database/elasticsearch"
+	"github.com/malice-plugins/go-plugin-utils/utils"
 	"github.com/parnurzeal/gorequest"
 	"github.com/urfave/cli"
 )
@@ -43,8 +43,8 @@ type ShadowServer struct {
 // ResultsData json object
 type ResultsData struct {
 	Found     bool             `json:"found" structs:"found"`
-	SandBox   SandBoxResults   `json:"sandbox" structs:"sandbox"`
-	WhiteList WhiteListResults `json:"whitelist" structs:"whitelist"`
+	SandBox   SandBoxResults   `json:"sandbox,omitempty" structs:"sandbox,omitempty"`
+	WhiteList WhiteListResults `json:"whitelist,omitempty" structs:"whitelist,omitempty"`
 	MarkDown  string           `json:"markdown,omitempty" structs:"markdown,omitempty"`
 }
 
@@ -151,8 +151,8 @@ func parseSandboxAPIOutput(sandboxapiout string) SandBoxResults {
 			meta := make(map[string]string)
 			meta["md5"] = strings.Trim(values[0], "\"")
 			meta["sha1"] = strings.Trim(values[1], "\"")
-			meta["first_seen"] = timeFirstSeen.String()
-			meta["last_seen"] = timeLastSeen.String()
+			meta["first_seen"] = printTableFormattedTime(timeFirstSeen.String())
+			meta["last_seen"] = printTableFormattedTime(timeLastSeen.String())
 			meta["type"] = strings.Trim(values[4], "\"")
 			meta["ssdeep"] = strings.Trim(values[5], "\"")
 			sandbox = SandBoxResults{MetaData: meta}

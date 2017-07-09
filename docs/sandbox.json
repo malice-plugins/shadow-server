@@ -3,8 +3,8 @@
     "found": true,
     "sandbox": {
       "metadata": {
-        "first_seen": "2016-11-03 09:09:50 +0000 UTC",
-        "last_seen": "2017-01-04 09:42:36 +0000 UTC",
+        "first_seen": "11/03/2016 9:09AM",
+        "last_seen": "1/04/2017 9:42AM",
         "md5": "669f87f2ec48dce3a76386eec94d7e3b",
         "sha1": "6b82f126555e7644816df5d4e4614677ee0bda5c",
         "ssdeep": "768:15jQ4nVHQaeO379u4XckKVCsknBN9A4hUnDxDiNZ957ZpK0IUUiM95Zdz:15jQ4nVHQaeO9uwckKuBN9A4UnDxcbFi",
@@ -35,7 +35,6 @@
         "Symantec": "W32.Lecna.D",
         "TrendMicro": "BKDR_LECNA.SM"
       }
-    },
-    "whitelist": null
+    }
   }
 }
