@@ -52,7 +52,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ## Sample Output
 
-### **sandbox** [JSON](https://github.com/malice-plugins/fileinfo/blob/master/docs/sandbox.json):
+### **sandbox** [JSON](https://github.com/malice-plugins/shadow-server/blob/master/docs/sandbox.json):
 
 ```json
 {
@@ -94,7 +94,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 }
 ```
 
-### **whitelist** [JSON](https://github.com/malice-plugins/fileinfo/blob/master/docs/whitelist.json)::
+### **whitelist** [JSON](https://github.com/malice-plugins/shadow-server/blob/master/docs/whitelist.json)::
 
 ```json
 {
@@ -151,7 +151,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 }
 ```
 
-## [Markdown](https://github.com/malice-plugins/fileinfo/blob/master/docs/SAMPLE.md)
+## [Markdown](https://github.com/malice-plugins/shadow-server/blob/master/docs/SAMPLE.md)
 
 ### **whitelist** (Markdown Table):
 
