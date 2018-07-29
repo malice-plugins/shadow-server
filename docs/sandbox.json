@@ -14,7 +14,7 @@
         "AVG": "Win32/DH{IIEXEx4XA2EICXwkIiU}",
         "AhnLab": "Win-Trojan/Lecna.61440",
         "Authentium": "W32/Lecnac.A.gen!Eldorado",
-        "Avast": "Win32:Lecna-I",
+        "Avast": "specified",
         "Avira": "WORM/Rbot.Gen",
         "BitDefender": "Backdoor.Lecna.AB",
         "Clam": "PUA.Win.Packer.AcprotectUltraprotect-1",

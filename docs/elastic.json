@@ -1,9 +1,10 @@
 {
-  "took": 3,
+  "took": 47,
   "timed_out": false,
   "_shards": {
     "total": 1,
     "successful": 1,
+    "skipped": 0,
     "failed": 0
   },
   "hits": {
@@ -13,20 +14,20 @@
       {
         "_index": "malice",
         "_type": "samples",
-        "_id": "AV0k2xU_exOxczTz8y_N",
+        "_id": "wnF_42QB6Xf1nJJBE7ny",
         "_score": 1,
         "_source": {
           "plugins": {
             "intel": {
               "shadow_server": {
                 "found": true,
-                "markdown": "#### ShadowServer\n##### AntiVirus\n - FirstSeen: 11/03/2016 9:09AM\n - LastSeen: 1/04/2017 9:42AM\n\n| Vendor          | Signature        |\n|:----------------|:-----------------|\n| AVG | Win32/DH{IIEXEx4XA2EICXwkIiU} |\n| AhnLab | Win-Trojan/Lecna.61440 |\n| Authentium | W32/Lecnac.A.gen!Eldorado |\n| Avast | Win32:Lecna-I |\n| Avira | WORM/Rbot.Gen |\n| BitDefender | Backdoor.Lecna.AB |\n| Clam | PUA.Win.Packer.AcprotectUltraprotect-1 |\n| Comodo | Backdoor.Win32.Lecna.AB |\n| DrWeb | BackDoor.Dizhi |\n| Eset | Win32/Lecna.W |\n| FProt | W32/Trojan.AAWD |\n| Fortinet | W32/Generic.AC.1FAF5A!tr |\n| GData | Backdoor.Lecna.AB |\n| Ikarus | Backdoor.Win32.Lecna |\n| K7 | Trojan ( 00013a571 ) |\n| K7GW | Trojan ( 00013a571 ) |\n| McAfee | BackDoor-CSB |\n| MicroWorld | Backdoor.Lecna.AB |\n| Microsoft | Backdoor:Win32/Lecna!dha |\n| QuickHeal | TrojanAPT.LecnaCBack.MUE.Z3 |\n| Sophos | Troj/Lecna-Q |\n| Symantec | W32.Lecna.D |\n| TrendMicro | BKDR_LECNA.SM |\n",
+                "markdown": "#### ShadowServer\n##### AntiVirus\n - FirstSeen: 11/03/2016 9:09AM\n - LastSeen: 1/04/2017 9:42AM\n\n| Vendor          | Signature        |\n|:----------------|:-----------------|\n| AVG | Win32/DH{IIEXEx4XA2EICXwkIiU} |\n| AhnLab | Win-Trojan/Lecna.61440 |\n| Authentium | W32/Lecnac.A.gen!Eldorado |\n| Avast | specified |\n| Avira | WORM/Rbot.Gen |\n| BitDefender | Backdoor.Lecna.AB |\n| Clam | PUA.Win.Packer.AcprotectUltraprotect-1 |\n| Comodo | Backdoor.Win32.Lecna.AB |\n| DrWeb | BackDoor.Dizhi |\n| Eset | Win32/Lecna.W |\n| FProt | W32/Trojan.AAWD |\n| Fortinet | W32/Generic.AC.1FAF5A!tr |\n| GData | Backdoor.Lecna.AB |\n| Ikarus | Backdoor.Win32.Lecna |\n| K7 | Trojan ( 00013a571 ) |\n| K7GW | Trojan ( 00013a571 ) |\n| McAfee | BackDoor-CSB |\n| MicroWorld | Backdoor.Lecna.AB |\n| Microsoft | Backdoor:Win32/Lecna!dha |\n| QuickHeal | TrojanAPT.LecnaCBack.MUE.Z3 |\n| Sophos | Troj/Lecna-Q |\n| Symantec | W32.Lecna.D |\n| TrendMicro | BKDR_LECNA.SM |\n",
                 "sandbox": {
                   "antivirus": {
                     "AVG": "Win32/DH{IIEXEx4XA2EICXwkIiU}",
                     "AhnLab": "Win-Trojan/Lecna.61440",
                     "Authentium": "W32/Lecnac.A.gen!Eldorado",
-                    "Avast": "Win32:Lecna-I",
+                    "Avast": "specified",
                     "Avira": "WORM/Rbot.Gen",
                     "BitDefender": "Backdoor.Lecna.AB",
                     "Clam": "PUA.Win.Packer.AcprotectUltraprotect-1",
@@ -59,13 +60,13 @@
               }
             }
           },
-          "scan_date": "2017-07-09T00:58:43.886785941Z"
+          "scan_date": "2018-07-29T00:45:13.576163073Z"
         }
       },
       {
         "_index": "malice",
         "_type": "samples",
-        "_id": "AV0k2yj7exOxczTz8y_O",
+        "_id": "w3F_42QB6Xf1nJJBHbn2",
         "_score": 1,
         "_source": {
           "plugins": {
@@ -124,7 +125,7 @@
               }
             }
           },
-          "scan_date": "2017-07-09T00:58:48.952974472Z"
+          "scan_date": "2018-07-29T00:45:16.148469342Z"
         }
       }
     ]

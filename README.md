@@ -1,9 +1,8 @@
 ![SS logo](https://raw.githubusercontent.com/malice-plugins/shadow-server/master/docs/logo.png)
 
-malice-shadow-server
-====================
+# malice-shadow-server
 
-[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-21.7MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
+[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-34.5MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
 
 Malice ShadowServer Hash Lookup Plugin
 
@@ -11,12 +10,12 @@ This repository contains a **Dockerfile** of the [ShadowServer](https://www.shad
 
 ### Dependencies
 
--	[malice/alpine](https://hub.docker.com/r/malice/alpine/)
+- [malice/alpine](https://hub.docker.com/r/malice/alpine/)
 
 ### Installation
 
-1.	Install [Docker](https://www.docker.io/).
-2.	Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
+1.  Install [Docker](https://www.docker.io/).
+2.  Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
 
 ### Usage
 
@@ -51,10 +50,9 @@ Run 'shadow-server COMMAND --help' for more information on a command.
 
 This will output to stdout and POST to malice results API webhook endpoint.
 
-Sample Output
--------------
+## Sample Output
 
-### **sandbox** JSON:
+### **sandbox** [JSON](https://github.com/malice-plugins/fileinfo/blob/master/docs/sandbox.json):
 
 ```json
 {
@@ -66,7 +64,8 @@ Sample Output
       "first_seen": "2010-06-15 03:09:41",
       "last_seen": "2010-06-15 03:09:41",
       "type": "exe",
-      "ssdeep": "12288:gOqOB0v2eZJys73dOvXDpNjNe8NuMpX4aBaa48L/93zKnP6ppgg2HFZlxVPbZX:sOA2eZJ8NI8Nah8L/4PqmTVPlX",
+      "ssdeep":
+        "12288:gOqOB0v2eZJys73dOvXDpNjNe8NuMpX4aBaa48L/93zKnP6ppgg2HFZlxVPbZX:sOA2eZJ8NI8Nah8L/4PqmTVPlX",
       "antivirus": {
         "AVG7": "Downloader.Generic9.URM",
         "AntiVir": "WORM/VB.NVA",
@@ -95,7 +94,7 @@ Sample Output
 }
 ```
 
-### **whitelist** JSON:
+### **whitelist** [JSON](https://github.com/malice-plugins/fileinfo/blob/master/docs/whitelist.json)::
 
 ```json
 {
@@ -107,7 +106,8 @@ Sample Output
       "first_seen": "2009-07-24 02:09:53",
       "last_seen": "2009-07-24 02:09:53",
       "type": "exe",
-      "ssdeep": "1536:bwOnbNQKLjWDyy1o5I0foMJUEbooPRrKKReFX3:RNQKPWDyDI0fFJltZrpReFX3",
+      "ssdeep":
+        "1536:bwOnbNQKLjWDyy1o5I0foMJUEbooPRrKKReFX3:RNQKPWDyDI0fFJltZrpReFX3",
       "antivirus": {}
     },
     "whitelist": {
@@ -127,16 +127,20 @@ Sample Output
       "media_source": "http://www.microsoft.com/",
       "mfg_name": "Microsoft Corporation",
       "os_mfg": "Microsoft Corporation",
-      "os_name": "Microsoft Windows XP Professional Service Pack 3 (build 2600)",
+      "os_name":
+        "Microsoft Windows XP Professional Service Pack 3 (build 2600)",
       "os_version": "5.1",
       "product_name": "Microsoft Windows Operating System",
       "product_version": "5.1.2600.5512",
       "reference": "os_patches_all",
       "sha1": "7A90F8B051BC82CC9CADBCC9BA345CED02891A6C",
-      "sha256": "865F34FE7BA81E9622DDBDFC511547D190367BBF3DAD21CEB6DA3EEC621044F5",
-      "sha512": "CB7218CFEA8813AE8C7ACF6F7511AECBEB9D697986E0EB8538065BF9E3E9C6CED9C29270EB677F5ACF08D2E94B21018D8C4A376AA646FA73CE831FC87D448934",
+      "sha256":
+        "865F34FE7BA81E9622DDBDFC511547D190367BBF3DAD21CEB6DA3EEC621044F5",
+      "sha512":
+        "CB7218CFEA8813AE8C7ACF6F7511AECBEB9D697986E0EB8538065BF9E3E9C6CED9C29270EB677F5ACF08D2E94B21018D8C4A376AA646FA73CE831FC87D448934",
       "sig_timestamp": "04/14/2008 02:07:47",
-      "sig_trustfile": "C:\\WINDOWS\\system32\\CatRoot\\{F750E6C3-38EE-11D1-85E5-00C04FC295EE}\\NT5.CAT",
+      "sig_trustfile":
+        "C:\\WINDOWS\\system32\\CatRoot\\{F750E6C3-38EE-11D1-85E5-00C04FC295EE}\\NT5.CAT",
       "signer": "Microsoft Windows Component Publisher",
       "source": "AppInfo",
       "source_version": "1.8",
@@ -147,6 +151,8 @@ Sample Output
 }
 ```
 
+## [Markdown](https://github.com/malice-plugins/fileinfo/blob/master/docs/SAMPLE.md)
+
 ### **whitelist** (Markdown Table):
 
 ---
@@ -156,7 +162,7 @@ Sample Output
 ##### WhiteList
 
 | Found | Filename    | Description | ProductName                        |
-|-------|-------------|-------------|------------------------------------|
+| ----- | ----------- | ----------- | ---------------------------------- |
 | true  | notepad.exe | Notepad     | Microsoft Windows Operating System |
 
 ---
@@ -169,11 +175,11 @@ Sample Output
 
 ##### AntiVirus
 
--	FirstSeen: 6/15/2010 3:09AM
--	LastSeen: 6/15/2010 3:09AM
+- FirstSeen: 6/15/2010 3:09AM
+- LastSeen: 6/15/2010 3:09AM
 
 | Vendor           | Signature                  |
-|------------------|----------------------------|
+| ---------------- | -------------------------- |
 | F-Prot6          | W32/Worm.BAOX              |
 | G-Data           | Trojan.Generic.2609117     |
 | NOD32            | Win32/AutoRun.VB.JP        |
@@ -197,8 +203,7 @@ Sample Output
 
 ---
 
-Documentation
--------------
+## Documentation
 
 ### To write results to [ElasticSearch](https://www.elastic.co/products/elasticsearch)
 
@@ -227,4 +232,4 @@ Please update the [CHANGELOG.md](https://github.com/malice-plugins/shadow-server
 
 ### License
 
-MIT Copyright (c) 2016-2017 **blacktop**
+MIT Copyright (c) 2016 **blacktop**

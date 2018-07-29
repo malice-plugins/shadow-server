@@ -4,6 +4,8 @@
 
 .circleci*
 docs*
+vendor*
+test*
 
 CHANGELOG.md
 LICENSE
