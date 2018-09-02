@@ -1,4 +1,4 @@
-# Create a NSRL lookup micro-service
+# Create a `shadow-server` lookup micro-service
 
 ```bash
 $ docker run -d -p 3993:3993 malice/shadow-server web
