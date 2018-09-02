@@ -24,7 +24,7 @@ RUN apk --update add --no-cache -t .build-deps \
   && export GOPATH=/go \
   && go version \
   && go get \
-  && go build -ldflags "-X main.Version=v$(cat VERSION) -X main.BuildTime=$(date -u +%Y%m%d)" -o /bin/shadow-server \
+  && go build -ldflags "-s -w -X main.Version=v$(cat VERSION) -X main.BuildTime=$(date -u +%Y%m%d)" -o /bin/shadow-server \
   && rm -rf /go /usr/local/go /usr/lib/go /tmp/* \
   && apk del --purge .build-deps
 

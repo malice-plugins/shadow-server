@@ -69,16 +69,6 @@ type sandBoxMetaData struct {
 // WhiteListResults is a shadow-server bin-test results JSON object
 type WhiteListResults map[string]string
 
-func assert(err error) {
-	if err != nil {
-		log.WithFields(log.Fields{
-			"plugin":   name,
-			"category": category,
-			"hash":     hash,
-		}).Fatal(err)
-	}
-}
-
 // IsEmpty checks if ResultsData is empty
 func (r ResultsData) IsEmpty() bool {
 	return reflect.DeepEqual(r, ResultsData{})
@@ -106,7 +96,7 @@ func parseWhiteListOutput(whitelistout string) WhiteListResults {
 			if fields[1] == "" {
 				return nil
 			}
-			assert(json.Unmarshal([]byte(fields[1]), &whitelist))
+			utils.Assert(json.Unmarshal([]byte(fields[1]), &whitelist))
 		}
 	}
 
@@ -163,7 +153,7 @@ func parseSandboxAPIOutput(sandboxapiout string) SandBoxResults {
 		if len(lines[1]) == 2 {
 			sandbox.Antivirus = nil
 		} else {
-			assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
+			utils.Assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
 		}
 	}
 
@@ -280,84 +270,108 @@ func main() {
 			Name:  "verbose, V",
 			Usage: "verbose output",
 		},
-		cli.StringFlag{
-			Name:        "elasticsearch",
-			Value:       "",
-			Usage:       "elasticsearch url for Malice to store results",
-			EnvVar:      "MALICE_ELASTICSEARCH_URL",
-			Destination: &es.URL,
-		},
-		cli.BoolFlag{
-			Name:   "callback, c",
-			Usage:  "POST results to Malice webhook",
-			EnvVar: "MALICE_ENDPOINT",
-		},
-		cli.BoolFlag{
-			Name:   "proxy, x",
-			Usage:  "proxy settings for Malice webhook endpoint",
-			EnvVar: "MALICE_PROXY",
-		},
-		cli.BoolFlag{
-			Name:  "table, t",
-			Usage: "output as Markdown table",
-		},
 	}
-	app.ArgsUsage = "MD5/SHA1 hash of file"
-	app.Action = func(c *cli.Context) error {
+	app.Commands = []cli.Command{
+		{
+			Name:    "web",
+			Aliases: []string{"w"},
+			Usage:   "Create a ShadowServer lookup web service",
+			Action: func(c *cli.Context) error {
+				webService()
+				return nil
+			},
+		},
+		{
+			Name:      "lookup",
+			Aliases:   []string{"l"},
+			Usage:     "Query ShadowServer for hash",
+			ArgsUsage: "MD5/SHA1 hash of file",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "elasticsearch",
+					Value:       "",
+					Usage:       "elasticsearch url for Malice to store results",
+					EnvVar:      "MALICE_ELASTICSEARCH_URL",
+					Destination: &es.URL,
+				},
+				cli.BoolFlag{
+					Name:   "post, p",
+					Usage:  "POST results to Malice webhook",
+					EnvVar: "MALICE_ENDPOINT",
+				},
+				cli.BoolFlag{
+					Name:   "proxy, x",
+					Usage:  "proxy settings for Malice webhook endpoint",
+					EnvVar: "MALICE_PROXY",
+				},
+				cli.IntFlag{
+					Name:   "timeout",
+					Value:  10,
+					Usage:  "malice plugin timeout (in seconds)",
+					EnvVar: "MALICE_TIMEOUT",
+				},
+				cli.BoolFlag{
+					Name:  "table, t",
+					Usage: "output as Markdown table",
+				},
+			},
+			Action: func(c *cli.Context) error {
 
-		if c.Bool("verbose") {
-			log.SetLevel(log.DebugLevel)
-		}
-
-		if c.Args().Present() {
-
-			hash = c.Args().First()
-			ss := ShadowServer{Results: LookupHash(hash)}
-			ss.Results.MarkDown = generateMarkDownTable(ss)
-
-			// upsert into Database
-			if len(c.String("elasticsearch")) > 0 {
-				err := es.Init()
-				if err != nil {
-					return errors.Wrap(err, "failed to initalize elasticsearch")
+				if c.Bool("verbose") {
+					log.SetLevel(log.DebugLevel)
 				}
-				err = es.StorePluginResults(database.PluginResults{
-					ID:       utils.Getopt("MALICE_SCANID", hash),
-					Name:     name,
-					Category: category,
-					Data:     structs.Map(ss.Results),
-				})
-				if err != nil {
-					return errors.Wrapf(err, "failed to index malice/%s results", name)
-				}
-			}
 
-			if c.Bool("table") {
-				fmt.Println(ss.Results.MarkDown)
-			} else {
-				ss.Results.MarkDown = ""
-				ssJSON, err := json.Marshal(ss)
-				assert(err)
-				if c.Bool("post") {
-					request := gorequest.New()
-					if c.Bool("proxy") {
-						request = gorequest.New().Proxy(os.Getenv("MALICE_PROXY"))
+				if c.Args().Present() {
+
+					hash = c.Args().First()
+					ss := ShadowServer{Results: LookupHash(hash)}
+					ss.Results.MarkDown = generateMarkDownTable(ss)
+
+					// upsert into Database
+					if len(c.String("elasticsearch")) > 0 {
+						err := es.Init()
+						if err != nil {
+							return errors.Wrap(err, "failed to initalize elasticsearch")
+						}
+						err = es.StorePluginResults(database.PluginResults{
+							ID:       utils.Getopt("MALICE_SCANID", hash),
+							Name:     name,
+							Category: category,
+							Data:     structs.Map(ss.Results),
+						})
+						if err != nil {
+							return errors.Wrapf(err, "failed to index malice/%s results", name)
+						}
 					}
-					request.Post(os.Getenv("MALICE_ENDPOINT")).
-						Set("X-Malice-ID", utils.Getopt("MALICE_SCANID", hash)).
-						Send(string(ssJSON)).
-						End(printStatus)
 
-					return nil
+					if c.Bool("table") {
+						fmt.Println(ss.Results.MarkDown)
+					} else {
+						ss.Results.MarkDown = ""
+						ssJSON, err := json.Marshal(ss)
+						utils.Assert(err)
+						if c.Bool("post") {
+							request := gorequest.New()
+							if c.Bool("proxy") {
+								request = gorequest.New().Proxy(os.Getenv("MALICE_PROXY"))
+							}
+							request.Post(os.Getenv("MALICE_ENDPOINT")).
+								Set("X-Malice-ID", utils.Getopt("MALICE_SCANID", hash)).
+								Send(string(ssJSON)).
+								End(printStatus)
+
+							return nil
+						}
+						fmt.Println(string(ssJSON))
+					}
+				} else {
+					log.Fatal(fmt.Errorf("please supply a MD5/SHA1 hash to query"))
 				}
-				fmt.Println(string(ssJSON))
-			}
-		} else {
-			log.Fatal(fmt.Errorf("please supply a MD5/SHA1 hash to query"))
-		}
-		return nil
+				return nil
+			},
+		},
 	}
 
 	err := app.Run(os.Args)
-	assert(err)
+	utils.Assert(err)
 }

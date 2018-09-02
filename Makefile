@@ -54,18 +54,18 @@ test_all: test test_elastic test_markdown test_web
 test:
 	@docker run --rm $(ORG)/$(NAME):$(VERSION) --help
 	@echo "===> Test sandbox"
-	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V $(FOUND_HASH) | jq . > docs/sandbox.json
+	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V lookup $(FOUND_HASH) | jq . > docs/sandbox.json
 	cat docs/sandbox.json | jq .
 	@echo "===> Test whitelist"
-	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V $(MISSING_HASH) | jq . > docs/whitelist.json
+	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V lookup $(MISSING_HASH) | jq . > docs/whitelist.json
 	cat docs/whitelist.json | jq .
 
 .PHONY: test_elastic
 test_elastic: start_elasticsearch
 	@echo "===> ${NAME} test_elastic sandbox"
-	docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH_URL=http://elasticsearch:9200 $(ORG)/$(NAME):$(VERSION) -V $(FOUND_HASH)
+	docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH_URL=http://elasticsearch:9200 $(ORG)/$(NAME):$(VERSION) -V lookup $(FOUND_HASH)
 	@echo "===> ${NAME} test_elastic whitelist"
-	docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH_URL=http://elasticsearch:9200 $(ORG)/$(NAME):$(VERSION) -V $(MISSING_HASH)
+	docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH_URL=http://elasticsearch:9200 $(ORG)/$(NAME):$(VERSION) -V lookup $(MISSING_HASH)
 	http localhost:9200/malice/_search | jq . > docs/elastic.json
 
 .PHONY: test_elastic_remote

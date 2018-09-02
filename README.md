@@ -2,7 +2,7 @@
 
 # malice-shadow-server
 
-[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-35.3MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
+[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-30.7MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
 
 Malice ShadowServer Hash Lookup Plugin
 
@@ -19,33 +19,50 @@ Malice ShadowServer Hash Lookup Plugin
 1. Install [Docker](https://www.docker.io/).
 2. Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
 
-### Usage
+## Usage
 
 ```bash
-$ docker run --rm malice/shadow-server MD5|SHA1
+$ docker run --rm malice/shadow-server --help
 
 Usage: shadow-server [OPTIONS] COMMAND [arg...]
 
 Malice ShadowServer Hash Lookup Plugin
 
-Version: v0.1.0, BuildTime: 20160219
+Version: v0.1.0, BuildTime: 20180902
 
 Author:
   blacktop - <https://github.com/blacktop>
 
 Options:
-  --verbose, -V      verbose output
-  --elasticsearch value  elasticsearch address for Malice to store results [$MALICE_ELASTICSEARCH_URL]
-  --post, -p         POST results to Malice webhook [$MALICE_ENDPOINT]
-  --proxy, -x        proxy settings for Malice webhook endpoint [$MALICE_PROXY]
-  --table, -t        output as Markdown table
-  --help, -h         show help
-  --version, -v      print the version
+  --verbose, -V  verbose output
+  --help, -h     show help
+  --version, -v  print the version
 
 Commands:
-  help	Shows a list of commands or help for one command
+  web     Create a ShadowServer lookup web service
+  lookup  Query ShadowServer for hash
+  help    Shows a list of commands or help for one command
 
 Run 'shadow-server COMMAND --help' for more information on a command.
+```
+
+### Lookup By Hash `md5|sha1`
+
+```bash
+$ docker run --rm malice/shadow-server lookup MD5|SHA1
+
+NAME:
+   shadow-server lookup - Query ShadowServer for hash
+
+USAGE:
+   shadow-server lookup [command options] MD5/SHA1 hash of file
+
+OPTIONS:
+   --elasticsearch value  elasticsearch url for Malice to storeresults [$MALICE_ELASTICSEARCH_URL]
+   --post, -p             POST results to Malice webhook [$MALICE_ENDPOINT]
+   --proxy, -x            proxy settings for Malice webhook endpoint [$MALICE_PROXY]
+   --timeout value        malice plugin timeout (in seconds) (default: 10) [$MALICE_TIMEOUT]
+   --table, -t            output as Markdown table
 ```
 
 This will output to stdout and POST to malice results API webhook endpoint.
