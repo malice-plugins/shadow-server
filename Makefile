@@ -4,12 +4,19 @@ NAME=shadow-server
 CATEGORY=intel
 VERSION=$(shell cat VERSION)
 
+FOUND_HASH=669f87f2ec48dce3a76386eec94d7e3b
+MISSING_HASH=7a90f8b051bc82cc9cadbcc9ba345ced02891a6c
 
-all: build size tag test test_markdown
+
+all: build size tag test_all
 
 .PHONY: build
 build:
-	cd $(VERSION); docker build -t $(ORG)/$(NAME):$(VERSION) .
+	docker build -t $(ORG)/$(NAME):$(VERSION) .
+
+.PHONY: build.md5
+build.md5:
+	docker build --build-arg HASH=md5 -t $(ORG)/$(NAME):md5 .
 
 .PHONY: size
 size:
@@ -34,35 +41,60 @@ tar:
 .PHONY: start_elasticsearch
 start_elasticsearch:
 ifeq ("$(shell docker inspect -f {{.State.Running}} elasticsearch)", "true")
-	@echo "===> elasticsearch already running"
-else
-	@echo "===> Starting elasticsearch"
+	@echo "===> elasticsearch already running.  Stopping now..."
 	@docker rm -f elasticsearch || true
-	@docker run --init -d --name elasticsearch -p 9200:9200 malice/elasticsearch:6.3; sleep 10
 endif
+	@echo "===> Starting elasticsearch"
+	@docker run --init -d --name elasticsearch -p 9200:9200 malice/elasticsearch:6.4; sleep 15
+
+.PHONY: test_all
+test_all: test test_elastic test_markdown test_web
 
 .PHONY: test
 test:
 	@docker run --rm $(ORG)/$(NAME):$(VERSION) --help
 	@echo "===> Test sandbox"
-	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V 669f87f2ec48dce3a76386eec94d7e3b | jq . > docs/sandbox.json
+	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V $(FOUND_HASH) | jq . > docs/sandbox.json
 	cat docs/sandbox.json | jq .
 	@echo "===> Test whitelist"
-	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V 7a90f8b051bc82cc9cadbcc9ba345ced02891a6c | jq . > docs/whitelist.json
+	@docker run --rm $(ORG)/$(NAME):$(VERSION) -V $(MISSING_HASH) | jq . > docs/whitelist.json
 	cat docs/whitelist.json | jq .
 
 .PHONY: test_elastic
 test_elastic: start_elasticsearch
-	@echo "===> ${NAME} test_elastic"
-	@docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH=elasticsearch -v $(PWD):/malware $(ORG)/$(NAME):$(VERSION) -V 669f87f2ec48dce3a76386eec94d7e3b
-	@docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH=elasticsearch -v $(PWD):/malware $(ORG)/$(NAME):$(VERSION) -V 7a90f8b051bc82cc9cadbcc9ba345ced02891a6c
+	@echo "===> ${NAME} test_elastic sandbox"
+	docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH_URL=http://elasticsearch:9200 $(ORG)/$(NAME):$(VERSION) -V $(FOUND_HASH)
+	@echo "===> ${NAME} test_elastic whitelist"
+	docker run --rm --link elasticsearch -e MALICE_ELASTICSEARCH_URL=http://elasticsearch:9200 $(ORG)/$(NAME):$(VERSION) -V $(MISSING_HASH)
 	http localhost:9200/malice/_search | jq . > docs/elastic.json
 
+.PHONY: test_elastic_remote
+test_elastic_remote:
+	@echo "===> ${NAME} test_elastic"
+	docker run --rm \
+	-e MALICE_ELASTICSEARCH_URL=${MALICE_ELASTICSEARCH_URL} \
+	-e MALICE_ELASTICSEARCH_USERNAME=${MALICE_ELASTICSEARCH_USERNAME} \
+	-e MALICE_ELASTICSEARCH_PASSWORD=${MALICE_ELASTICSEARCH_PASSWORD} \
+	-e MALICE_ELASTICSEARCH_INDEX="test" \
+	$(ORG)/$(NAME):$(VERSION) -V lookup $(FOUND_HASH)
+
 .PHONY: test_markdown
-test_markdown: test_elastic
+test_markdown:
 	@echo "===> ${NAME} test_markdown"
-	# http localhost:9200/malice/_search query:=@docs/query.json | jq . > docs/elastic.json
+	http localhost:9200/malice/_search | jq . > docs/elastic.json
 	cat docs/elastic.json | jq -r '.hits.hits[] ._source.plugins.${CATEGORY}.shadow_server.markdown' > docs/SAMPLE.md
+
+.PHONY: test_web
+test_web: stop
+	@echo "===> ${NAME} web service"
+	@docker run --init -d --name $(NAME) -p 3993:3993 $(ORG)/$(NAME):$(VERSION) -V web
+	http -f localhost:3993/lookup/$(FOUND_HASH)
+	http -f localhost:3993/lookup/$(MISSING_HASH)
+
+.PHONY: stop
+stop:
+	@echo "===> Stopping container ${NAME}"
+	@docker container rm -f $(NAME) || true
 
 .PHONY: circle
 circle: ci-size
@@ -80,6 +112,8 @@ ci-size: ci-build
 clean:
 	docker-clean stop
 	docker rmi $(ORG)/$(NAME):$(VERSION)
+	docker rmi $(ORG)/$(NAME):latest
+
 
 # Absolutely awesome: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help:

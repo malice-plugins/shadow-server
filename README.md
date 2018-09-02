@@ -2,28 +2,28 @@
 
 # malice-shadow-server
 
-[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-34.5MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
+[![Circle CI](https://circleci.com/gh/malice-plugins/shadow-server.png?style=shield)](https://circleci.com/gh/malice-plugins/shadow-server) [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org) [![Docker Stars](https://img.shields.io/docker/stars/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Pulls](https://img.shields.io/docker/pulls/malice/shadow-server.svg)](https://hub.docker.com/r/malice/shadow-server/) [![Docker Image](https://img.shields.io/badge/docker%20image-35.3MB-blue.svg)](https://hub.docker.com/r/malice/shadow-server/)
 
 Malice ShadowServer Hash Lookup Plugin
 
-This repository contains a **Dockerfile** of the [ShadowServer](https://www.shadowserver.org/wiki/) malice plugin **malice/shadow-server**.
+> This repository contains a **Dockerfile** of the [ShadowServer](https://www.shadowserver.org/wiki/) malice plugin **malice/shadow-server**.
+
+---
 
 ### Dependencies
 
 - [malice/alpine](https://hub.docker.com/r/malice/alpine/)
 
-### Installation
+## Installation
 
-1.  Install [Docker](https://www.docker.io/).
-2.  Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
+1. Install [Docker](https://www.docker.io/).
+2. Download [trusted build](https://hub.docker.com/r/malice/shadow-server/) from public [DockerHub](https://hub.docker.com): `docker pull malice/shadow-server`
 
 ### Usage
 
-```
-docker run --rm malice/shadow-server MD5/SHA1
-```
-
 ```bash
+$ docker run --rm malice/shadow-server MD5|SHA1
+
 Usage: shadow-server [OPTIONS] COMMAND [arg...]
 
 Malice ShadowServer Hash Lookup Plugin
@@ -35,7 +35,7 @@ Author:
 
 Options:
   --verbose, -V      verbose output
-  --elasitcsearch value  elasitcsearch address for Malice to store results [$MALICE_ELASTICSEARCH]
+  --elasticsearch value  elasticsearch address for Malice to store results [$MALICE_ELASTICSEARCH_URL]
   --post, -p         POST results to Malice webhook [$MALICE_ENDPOINT]
   --proxy, -x        proxy settings for Malice webhook endpoint [$MALICE_PROXY]
   --table, -t        output as Markdown table
@@ -52,7 +52,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ## Sample Output
 
-### **sandbox** [JSON](https://github.com/malice-plugins/shadow-server/blob/master/docs/sandbox.json):
+### **sandbox** [JSON](https://github.com/malice-plugins/shadow-server/blob/master/docs/sandbox.json)
 
 ```json
 {
@@ -64,8 +64,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
       "first_seen": "2010-06-15 03:09:41",
       "last_seen": "2010-06-15 03:09:41",
       "type": "exe",
-      "ssdeep":
-        "12288:gOqOB0v2eZJys73dOvXDpNjNe8NuMpX4aBaa48L/93zKnP6ppgg2HFZlxVPbZX:sOA2eZJ8NI8Nah8L/4PqmTVPlX",
+      "ssdeep": "12288:gOqOB0v2eZJys73dOvXDpNjNe8NuMpX4aBaa48L/93zKnP6ppgg2HFZlxVPbZX:sOA2eZJ8NI8Nah8L/4PqmTVPlX",
       "antivirus": {
         "AVG7": "Downloader.Generic9.URM",
         "AntiVir": "WORM/VB.NVA",
@@ -94,7 +93,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 }
 ```
 
-### **whitelist** [JSON](https://github.com/malice-plugins/shadow-server/blob/master/docs/whitelist.json)::
+### **whitelist** [JSON](https://github.com/malice-plugins/shadow-server/blob/master/docs/whitelist.json)
 
 ```json
 {
@@ -106,8 +105,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
       "first_seen": "2009-07-24 02:09:53",
       "last_seen": "2009-07-24 02:09:53",
       "type": "exe",
-      "ssdeep":
-        "1536:bwOnbNQKLjWDyy1o5I0foMJUEbooPRrKKReFX3:RNQKPWDyDI0fFJltZrpReFX3",
+      "ssdeep": "1536:bwOnbNQKLjWDyy1o5I0foMJUEbooPRrKKReFX3:RNQKPWDyDI0fFJltZrpReFX3",
       "antivirus": {}
     },
     "whitelist": {
@@ -127,20 +125,16 @@ This will output to stdout and POST to malice results API webhook endpoint.
       "media_source": "http://www.microsoft.com/",
       "mfg_name": "Microsoft Corporation",
       "os_mfg": "Microsoft Corporation",
-      "os_name":
-        "Microsoft Windows XP Professional Service Pack 3 (build 2600)",
+      "os_name": "Microsoft Windows XP Professional Service Pack 3 (build 2600)",
       "os_version": "5.1",
       "product_name": "Microsoft Windows Operating System",
       "product_version": "5.1.2600.5512",
       "reference": "os_patches_all",
       "sha1": "7A90F8B051BC82CC9CADBCC9BA345CED02891A6C",
-      "sha256":
-        "865F34FE7BA81E9622DDBDFC511547D190367BBF3DAD21CEB6DA3EEC621044F5",
-      "sha512":
-        "CB7218CFEA8813AE8C7ACF6F7511AECBEB9D697986E0EB8538065BF9E3E9C6CED9C29270EB677F5ACF08D2E94B21018D8C4A376AA646FA73CE831FC87D448934",
+      "sha256": "865F34FE7BA81E9622DDBDFC511547D190367BBF3DAD21CEB6DA3EEC621044F5",
+      "sha512": "CB7218CFEA8813AE8C7ACF6F7511AECBEB9D697986E0EB8538065BF9E3E9C6CED9C29270EB677F5ACF08D2E94B21018D8C4A376AA646FA73CE831FC87D448934",
       "sig_timestamp": "04/14/2008 02:07:47",
-      "sig_trustfile":
-        "C:\\WINDOWS\\system32\\CatRoot\\{F750E6C3-38EE-11D1-85E5-00C04FC295EE}\\NT5.CAT",
+      "sig_trustfile": "C:\\WINDOWS\\system32\\CatRoot\\{F750E6C3-38EE-11D1-85E5-00C04FC295EE}\\NT5.CAT",
       "signer": "Microsoft Windows Component Publisher",
       "source": "AppInfo",
       "source_version": "1.8",
@@ -153,7 +147,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ## [Markdown](https://github.com/malice-plugins/shadow-server/blob/master/docs/SAMPLE.md)
 
-### **whitelist** (Markdown Table):
+### **whitelist** _(Markdown Table)_
 
 ---
 
@@ -167,7 +161,7 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ---
 
-### **sandbox** (Markdown Table):
+### **sandbox** _(Markdown Table)_
 
 ---
 
@@ -205,31 +199,24 @@ This will output to stdout and POST to malice results API webhook endpoint.
 
 ## Documentation
 
-### To write results to [ElasticSearch](https://www.elastic.co/products/elasticsearch)
+- [To write results to ElasticSearch](https://github.com/malice-plugins/shadow-server/blob/master/docs/elasticsearch.md)
+- [To create a shadow-server lookup micro-service](https://github.com/malice-plugins/shadow-server/blob/master/docs/web.md)
+- [To post results to a webhook](https://github.com/malice-plugins/shadow-server/blob/master/docs/callback.md)
 
-```bash
-$ docker volume create --name malice
-$ docker run -d --name elastic \
-                -p 9200:9200 \
-                -v malice:/usr/share/elasticsearch/data \
-                 blacktop/elasticsearch
-$ docker run --rm --link elastic malice/shadow-server -t MD5/SHA1
-```
-
-### Issues
+## Issues
 
 Find a bug? Want more features? Find something missing in the documentation? Let me know! Please don't hesitate to [file an issue](https://github.com/malice-plugins/shadow-server/issues/new) and I'll get right on it.
 
-### CHANGELOG
+## CHANGELOG
 
 See [`CHANGELOG.md`](https://github.com/malice-plugins/shadow-server/blob/master/CHANGELOG.md)
 
-### Contributing
+## Contributing
 
 [See all contributors on GitHub](https://github.com/malice-plugins/shadow-server/graphs/contributors).
 
 Please update the [CHANGELOG.md](https://github.com/malice-plugins/shadow-server/blob/master/CHANGELOG.md) and submit a [Pull Request on GitHub](https://help.github.com/articles/using-pull-requests/).
 
-### License
+## License
 
 MIT Copyright (c) 2016 **blacktop**
