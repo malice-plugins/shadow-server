@@ -69,6 +69,16 @@ type sandBoxMetaData struct {
 // WhiteListResults is a shadow-server bin-test results JSON object
 type WhiteListResults map[string]string
 
+func assert(err error) {
+	if err != nil {
+		log.WithFields(log.Fields{
+			"plugin":   name,
+			"category": category,
+			"path":     path,
+		}).Fatal(err)
+	}
+}
+
 // IsEmpty checks if ResultsData is empty
 func (r ResultsData) IsEmpty() bool {
 	return reflect.DeepEqual(r, ResultsData{})
@@ -96,7 +106,7 @@ func parseWhiteListOutput(whitelistout string) WhiteListResults {
 			if fields[1] == "" {
 				return nil
 			}
-			utils.Assert(json.Unmarshal([]byte(fields[1]), &whitelist))
+			assert(json.Unmarshal([]byte(fields[1]), &whitelist))
 		}
 	}
 
@@ -153,7 +163,7 @@ func parseSandboxAPIOutput(sandboxapiout string) SandBoxResults {
 		if len(lines[1]) == 2 {
 			sandbox.Antivirus = nil
 		} else {
-			utils.Assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
+			assert(json.Unmarshal([]byte(lines[1]), &sandbox.Antivirus))
 		}
 	}
 
@@ -349,7 +359,7 @@ func main() {
 					} else {
 						ss.Results.MarkDown = ""
 						ssJSON, err := json.Marshal(ss)
-						utils.Assert(err)
+						assert(err)
 						if c.Bool("post") {
 							request := gorequest.New()
 							if c.Bool("proxy") {
@@ -373,5 +383,5 @@ func main() {
 	}
 
 	err := app.Run(os.Args)
-	utils.Assert(err)
+	assert(err)
 }
