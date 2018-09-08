@@ -74,7 +74,7 @@ func assert(err error) {
 		log.WithFields(log.Fields{
 			"plugin":   name,
 			"category": category,
-			"path":     path,
+			"hash":     hash,
 		}).Fatal(err)
 	}
 }
