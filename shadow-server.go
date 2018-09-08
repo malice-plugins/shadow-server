@@ -26,6 +26,7 @@ import (
 const (
 	name     = "shadow_server"
 	category = "intel"
+	uagent   = "Mozilla/5.0 (Windows NT x.y; Win64; x64; rv:10.0) Gecko/20100101 Firefox/10.0"
 )
 
 var (
@@ -87,10 +88,13 @@ func (r ResultsData) IsEmpty() bool {
 func hashType(hash string) *grequests.RequestOptions {
 	hashTyp, err := utils.GetHashType(hash)
 	if err != nil {
-		return &grequests.RequestOptions{}
+		return &grequests.RequestOptions{UserAgent: uagent}
 	}
 
-	return &grequests.RequestOptions{Params: map[string]string{hashTyp: hash}}
+	return &grequests.RequestOptions{
+		UserAgent: uagent,
+		Params:    map[string]string{hashTyp: hash},
+	}
 }
 
 func parseWhiteListOutput(whitelistout string) WhiteListResults {
@@ -175,6 +179,7 @@ func sandboxAPISearch(hash string) SandBoxResults {
 
 	// NOTE: https://godoc.org/github.com/levigross/grequests
 	ro := &grequests.RequestOptions{
+		UserAgent: uagent,
 		Params: map[string]string{
 			"query": hash,
 		},
