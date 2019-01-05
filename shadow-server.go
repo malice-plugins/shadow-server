@@ -47,8 +47,8 @@ type ShadowServer struct {
 // ResultsData json object
 type ResultsData struct {
 	Found     bool             `json:"found" structs:"found"`
-	SandBox   SandBoxResults   `json:"sandbox,omitempty" structs:"sandbox,omitempty"`
-	WhiteList WhiteListResults `json:"whitelist,omitempty" structs:"whitelist,omitempty"`
+	SandBox   SandBoxResults   `json:"sandbox" structs:"sandbox,omitempty"`
+	WhiteList WhiteListResults `json:"whitelist" structs:"whitelist,omitempty"`
 	MarkDown  string           `json:"markdown,omitempty" structs:"markdown,omitempty"`
 }
 

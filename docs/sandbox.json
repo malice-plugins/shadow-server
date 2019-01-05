@@ -35,6 +35,7 @@
         "Symantec": "W32.Lecna.D",
         "TrendMicro": "BKDR_LECNA.SM"
       }
-    }
+    },
+    "whitelist": null
   }
 }
